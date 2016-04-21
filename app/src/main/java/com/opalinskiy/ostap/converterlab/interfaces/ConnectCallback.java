@@ -5,4 +5,6 @@ public interface ConnectCallback {
 
     void onFailure(Throwable throwable, String errorMessage);
 
+    void onProgress(long percentage);
+
 }

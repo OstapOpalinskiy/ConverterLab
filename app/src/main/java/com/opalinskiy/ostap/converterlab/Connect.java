@@ -24,8 +24,9 @@ public class Connect {
     private static Connect _instance;
     private AsyncHttpClient client;
     private int mParser = PARSER_JSON;
+    private long percentage;
 
-    private Connect(){}
+    private Connect() {}
 
     public static Connect getInstance() {
         if (_instance == null) {
@@ -40,6 +41,14 @@ public class Connect {
         Log.d("TAG", "getRequestWithParams");
         client.get("http://resources.finance.ua/ru/public/currency-cash.json",requestParams,new JsonHttpResponseHandler()
         {
+
+                    @Override
+                    public void onProgress(int bytesWritten, int totalSize) {
+                        super.onProgress(bytesWritten, totalSize);
+                        long progressPercentage = (long)10*bytesWritten/totalSize;
+                        callback.onProgress(progressPercentage);
+                    }
+
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         Log.d("TAG", "succuess");
@@ -83,5 +92,9 @@ public class Connect {
 
     public int getParser() {
         return mParser;
+    }
+
+    public long getPercentage() {
+        return percentage;
     }
 }

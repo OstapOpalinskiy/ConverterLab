@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 
@@ -17,7 +19,7 @@ import com.opalinskiy.ostap.converterlab.models.organisation.Organisation;
 
 import java.util.List;
 
-public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdapter.MyViewHolder> {
+public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdapter.MyViewHolder> implements Filterable {
     private final EventHandler handler;
     private List<Organisation> organisations;
     private Organisation organisation;
@@ -52,6 +54,11 @@ public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdap
     @Override
     public int getItemCount() {
         return organisations == null ? 0 : organisations.size();
+    }
+
+    @Override
+    public Filter getFilter() {
+        return null;
     }
 
 
