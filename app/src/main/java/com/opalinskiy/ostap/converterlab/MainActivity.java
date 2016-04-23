@@ -21,6 +21,7 @@ import com.opalinskiy.ostap.converterlab.adapters.OrganisationsAdapter;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
+import com.opalinskiy.ostap.converterlab.model.Currency;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.utils.dbUtils.DbManager;
@@ -57,10 +58,13 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
                 //   dbManager.writeListOfOrganisationsToDb(organisations);
+                dbManager.setCurrencyVariationForList(organisations);
                 dbManager.writeDataToDb(dataResponse);
+               // Currency currencyFromDB =  dbManager.findCurrencyInDb(organisations.get(0).getId(), "RUB");
 
-                Log.d(Constants.LOG_TAG, "Date: " + dataResponse.getDate());
-                Log.d(Constants.LOG_TAG, "List: " + organisations.size());
+                Log.d(Constants.LOG_TAG, "Currency from DB ask " + organisations.get(0)
+                        .getCurrencies().getCurrencyList().get(0).getChangeAsk());
+              //  Log.d(Constants.LOG_TAG, "Currency from DB bid " + currencyFromDB.getBid());
                 showList(organisations);
                 snackbar.dismiss();
             }

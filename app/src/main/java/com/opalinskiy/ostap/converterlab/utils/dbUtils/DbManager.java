@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.opalinskiy.ostap.converterlab.constants.Constants;
@@ -149,14 +150,13 @@ public class DbManager {
         List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
         ContentValues cv = new ContentValues();
         for (int i = 0; i < listCurrencies.size(); i++) {
-            Log.d(Constants.LOG_TAG, "write curencies for " + organisation.getTitle());
             cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
             cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
             cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
             cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
-            cv.put(dbConstants.COLUMN_CHANGE_ASK, "1");
+            cv.put(dbConstants.COLUMN_CHANGE_ASK, listCurrencies.get(i).getChangeAsk());
             cv.put(dbConstants.COLUMN_BID_CURRENCY, listCurrencies.get(i).getBid());
-            cv.put(dbConstants.COLUMN_CHANGE_BID, "1");
+            cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
             database.insert(dbConstants.TABLE_COURSES, null, cv);
         }
 
@@ -169,11 +169,6 @@ public class DbManager {
             cursor = getCourses();
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    Log.d(Constants.LOG_TAG, "id from courses" + cursor.getString(1) );
-                    Log.d(Constants.LOG_TAG, "id from org" +organisation.getId());
-                    Log.d(Constants.LOG_TAG, "cursor count: " + cursor.getCount());
-                    Log.d(Constants.LOG_TAG, "=============================================================");
-
                     if (cursor.getString(1).equals(organisation.getId())) {
                         Currency currency = new Currency();
                         currency.setIdCurrency(cursor.getString(1));
@@ -204,4 +199,86 @@ public class DbManager {
     public void recreateDb() {
         dbHelper.onUpgrade(database, 1, 1);
     }
-}
+
+   public void setCurrencyVariationForList(List<Organisation> list){
+       for(int i = 0; i < list.size(); i++){
+           List<Currency> currencyList = list.get(i).getCurrencies().getCurrencyList();
+           for(int j = 0; j < currencyList.size(); j++ ){
+               setCurrencyVariation(list.get(i), currencyList.get(j));
+           }
+       }
+   }
+
+
+    public void setCurrencyVariation(Organisation organisation, Currency currency){
+        Log.d(Constants.LOG_TAG, "org id in setCurrencyVariation: " + organisation.getId());
+        Log.d(Constants.LOG_TAG, "currency Name in setCurrencyVariation: " + currency.getNameCurrency());
+        Currency currencyFromDB = findCurrencyInDb(organisation.getId(), currency.getIdCurrency());
+        Log.d(Constants.LOG_TAG, "currency from db is null" + (currencyFromDB == null));
+        compareAskBid(currency, currencyFromDB);
+        }
+
+    private void compareAskBid(Currency currency, Currency currencyFromDB) {
+        double ask = 0;
+        double bid = 0;
+        double askDb = 0;
+        double bidDb = 0;
+        if(!TextUtils.isEmpty(currency.getAsk())){
+            ask   = Double.parseDouble(currency.getAsk());
+        }
+
+        if(!TextUtils.isEmpty(currency.getBid())){
+            bid   = Double.parseDouble(currency.getBid());
+        }
+
+        if(!TextUtils.isEmpty(currencyFromDB.getAsk())){
+            askDb = Double.parseDouble(currency.getBid());
+        }
+
+        if(!TextUtils.isEmpty(currencyFromDB.getBid())){
+            bidDb = Double.parseDouble(currency.getBid());
+        }
+
+        if(ask >= askDb){
+            currency.setChangeAsk(Constants.INCREASE_KEY);
+        } else {
+            currency.setChangeAsk(Constants.DECREASE_KEY);
+        }
+        if(bid >= bidDb){
+            currency.setChangeBid(Constants.INCREASE_KEY);
+        } else {
+            currency.setChangeBid(Constants.DECREASE_KEY);
+        }
+    }
+
+    public Currency findCurrencyInDb(String organisationId, String currencyId){
+        Cursor cursor = null;
+        Currency currency = null;
+        try {
+            cursor = getCourses();
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    if (cursor.getString(1).equals(organisationId)
+                            && currencyId.equals(cursor.getString(2))) {
+                        currency = new Currency();
+                      //  currency.setIdCurrency(cursor.getString(1));
+                      //  currency.setNameCurrency(cursor.getString(2));
+                        currency.setAsk(cursor.getString(4));
+                        //currency.setChangeAsk(cursor.getString(4));
+                        currency.setBid(cursor.getString(6));
+                       // currency.setChangeBid(cursor.getString(6));
+                        return currency;
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    }

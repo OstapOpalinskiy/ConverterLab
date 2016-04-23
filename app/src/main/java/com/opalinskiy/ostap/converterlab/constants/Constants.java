@@ -12,4 +12,6 @@ public class Constants {
    public static final String DATE_KEY = "date";
    public static final String ORG_TYPE_KEY = "orgType";
    public static final String ORG_TYPES_MAP_KEY = "orgTypes";
+   public static final String INCREASE_KEY = "increase";
+   public static final String DECREASE_KEY = "decrease";
 }
