@@ -159,6 +159,7 @@ public class DbManager {
             cv.put(dbConstants.COLUMN_CHANGE_BID, "1");
             database.insert(dbConstants.TABLE_COURSES, null, cv);
         }
+
     }
 
     public void fillOrganisationWithCourses(Organisation organisation) {
