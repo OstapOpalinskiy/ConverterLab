@@ -2,6 +2,7 @@ package com.opalinskiy.ostap.converterlab;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -17,20 +18,22 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.opalinskiy.ostap.converterlab.adapters.OrganisationsAdapter;
+import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
-import com.opalinskiy.ostap.converterlab.models.organisation.Organisation;
-import com.opalinskiy.ostap.converterlab.response.OrganisationResponse;
+import com.opalinskiy.ostap.converterlab.model.Organisation;
+import com.opalinskiy.ostap.converterlab.model.DataResponse;
+import com.opalinskiy.ostap.converterlab.utils.dbUtils.DbManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements EventHandler, SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
-    private static final String LOG_TAG = "TAG";
-    private ArrayList<Organisation> orgsList;
+    private List<Organisation> organisations;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private DbManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,35 +42,65 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_MA);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
+        dbManager = new DbManager(this);
+        dbManager.open();
+
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
 
-
-        Api.getOrgs(new ConnectCallback() {
+        Log.d("TAG", "before getData response in main");
+        Api.getDataResponse(new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {
-                Log.d(LOG_TAG, "on sucsess");
-                OrganisationResponse organisationResponse = (OrganisationResponse) object;
-                orgsList = organisationResponse.getOrgs();
-                showExample();
-                showList(orgsList);
+                Log.d(Constants.LOG_TAG, "On success");
+                DataResponse dataResponse = (DataResponse) object;
+                organisations = dataResponse.getOrganisations();
+                //   dbManager.writeListOfOrganisationsToDb(organisations);
+                dbManager.writeDataToDb(dataResponse);
+
+                Log.d(Constants.LOG_TAG, "Date: " + dataResponse.getDate());
+                Log.d(Constants.LOG_TAG, "List: " + organisations.size());
+                showList(organisations);
                 snackbar.dismiss();
             }
 
             @Override
-            public void onFailure(Throwable throwable, String errorMessage) {
-                Log.d(LOG_TAG, "onFailure=" + errorMessage);
+            public void onFailure() {
+                Log.d(Constants.LOG_TAG, "onFailure=");
+                organisations = dbManager.readListOfOrganisationsFromDB();
+                dbManager.fillOrganisationWithCourses(organisations.get(1));
+                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(1));
+//                Log.d(Constants.LOG_TAG, "bid from first of DB: " + organisations.get(0).
+//                        getCurrencies().getCurrencyList().get(0).getBid());
+                showList(organisations);
             }
 
             @Override
             public void onProgress(long percentage) {
-                String message =  "Progress:" + percentage +"%";
-                Log.d("TAG", "Progress in activity" + percentage + "%");
+                String message = "Progress:" + percentage + "%";
                 snackbar.setText(message);
                 snackbar.show();
-
             }
         });
+//        Cursor cursor = dbManager.readOrganisationsFromDb();
+//        if (cursor != null && cursor.moveToFirst()) {
+//            do {
+//                Log.d("TAG", "" + cursor.getString(0));
+//                Log.d("TAG", "" + cursor.getString(1));
+//                Log.d("TAG", "" + cursor.getString(2));
+//                Log.d("TAG", "" + cursor.getString(3));
+//                Log.d("TAG", "" + cursor.getString(4));
+//                Log.d("TAG", "" + cursor.getString(5));
+//                Log.d("TAG", "" + cursor.getString(6));
+//                Log.d("TAG", "" + cursor.getString(7));
+//                Log.d("TAG", "" + cursor.getString(8));
+//                Log.d("TAG", "" + cursor.getString(9));
+//                Log.d("TAG", "" + cursor.getString(10));
+//                Log.d("TAG", "" + cursor.getString(11));
+//                Log.d("TAG", "" + cursor.getString(12));
+//                Log.d("TAG", "=================================================================");
+//            } while (cursor.moveToNext());
+//        }
     }
 
     @Override
@@ -87,20 +120,20 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        Log.d("TAG", "onTextChange");
+        Log.d(Constants.LOG_TAG, "onTextChange");
         String criteria = newText.toLowerCase();
         List<Organisation> filteredList = new ArrayList();
         //  if (!TextUtils.isEmpty(newText)) {
-        for (int i = 0; i < orgsList.size(); i++) {
-            if (orgsList.get(i).getCity().toLowerCase().contains(criteria)
-                    || orgsList.get(i).getRegion().toLowerCase().contains(criteria)
-                    || orgsList.get(i).getTitle().toLowerCase().contains(criteria)) {
-                filteredList.add(orgsList.get(i));
+        for (int i = 0; i < organisations.size(); i++) {
+            if (organisations.get(i).getCity().toLowerCase().contains(criteria)
+                    || organisations.get(i).getRegion().toLowerCase().contains(criteria)
+                    || organisations.get(i).getTitle().toLowerCase().contains(criteria)) {
+                filteredList.add(organisations.get(i));
             }
         }
         showList(filteredList);
 //        } else {
-//            showList(orgsList);
+//            showList(organisations);
 //        }
         return false;
     }
@@ -110,25 +143,26 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
 
 
-        Api.getOrgs(new ConnectCallback() {
+        Api.getDataResponse(new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {
-                Log.d(LOG_TAG, "on sucsess");
-                OrganisationResponse organisationResponse = (OrganisationResponse) object;
-                orgsList = organisationResponse.getOrgs();
+                Log.d(Constants.LOG_TAG, "on success");
+                DataResponse dataResponse = (DataResponse) object;
+                organisations = dataResponse.getOrganisations();
+                Log.d(Constants.LOG_TAG, "on success");
                 showExample();
-                showList(orgsList);
+                showList(organisations);
                 snackbar.dismiss();
             }
 
             @Override
-            public void onFailure(Throwable throwable, String errorMessage) {
-                Log.d(LOG_TAG, "onFailure=" + errorMessage);
+            public void onFailure() {
+                Log.d(Constants.LOG_TAG, "onFailure=");
             }
 
             @Override
             public void onProgress(long percentage) {
-                String message =  "Progress:" + percentage +"%";
+                String message = "Progress:" + percentage + "%";
                 Log.d("TAG", "Progress in activity" + percentage + "%");
                 snackbar.setText(message);
                 snackbar.show();
@@ -146,14 +180,9 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
     }
 
     private void showExample() {
-        if (orgsList != null) {
-            Log.d(LOG_TAG, "orgsList.size:" + orgsList.size());
-            Log.d(LOG_TAG, "orgsList.first  address:" + orgsList.get(0).getAddress());
-            Log.d(LOG_TAG, "orgsList.first: title" + orgsList.get(0).getTitle());
-            Log.d(LOG_TAG, "orgsList.first: title" + orgsList.get(0).getLink());
-            Log.d(LOG_TAG, "orgsList.first: region" + orgsList.get(0).getRegion());
-            Log.d(LOG_TAG, "orgsList.first: Euro ask" + orgsList.get(0).getCurrencies().getEur().getBid());
-            Log.d(LOG_TAG, "orgsList.first: Euro bid" + orgsList.get(0).getCurrencies().getEur().getAsk());
+        if (organisations != null) {
+            Log.d(Constants.LOG_TAG, "" + organisations.get(0));
+            Log.d(Constants.LOG_TAG, "==================================================================================");
         }
     }
 
@@ -195,6 +224,12 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
     @Override
     public void onRefresh() {
         refreshData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbManager.close();
     }
 }
 

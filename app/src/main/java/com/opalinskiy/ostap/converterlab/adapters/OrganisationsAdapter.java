@@ -1,6 +1,5 @@
 package com.opalinskiy.ostap.converterlab.adapters;
 
-import android.content.Context;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -15,7 +14,7 @@ import android.widget.TextView;
 
 import com.opalinskiy.ostap.converterlab.R;
 import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
-import com.opalinskiy.ostap.converterlab.models.organisation.Organisation;
+import com.opalinskiy.ostap.converterlab.model.Organisation;
 
 import java.util.List;
 
@@ -60,7 +59,6 @@ public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdap
     public Filter getFilter() {
         return null;
     }
-
 
     class MyViewHolder extends RecyclerView.ViewHolder implements TabLayout.OnTabSelectedListener {
 

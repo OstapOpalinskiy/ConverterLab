@@ -3,13 +3,12 @@ package com.opalinskiy.ostap.converterlab;
 import android.util.Log;
 
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
-import com.opalinskiy.ostap.converterlab.response.OrganisationResponse;
+import com.opalinskiy.ostap.converterlab.model.DataResponse;
 
 
 public class Api {
-    //returns array of all posts
-    public static void getOrgs(ConnectCallback callback) {
-        Log.d("TAG", "getOrgs");
-        Connect.getInstance().getRequestWithParam(null, new OrganisationResponse(), callback);
+    public static void getDataResponse(ConnectCallback callback) {
+        Log.d("TAG", "in getData Response");
+        Connect.getInstance().getRequestWithParam(null, new DataResponse(), callback);
     }
 }

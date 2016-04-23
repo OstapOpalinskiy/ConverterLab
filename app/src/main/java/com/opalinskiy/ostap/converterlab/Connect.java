@@ -6,6 +6,7 @@ import android.util.Log;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.interfaces.ModelResponse;
 
@@ -17,60 +18,54 @@ import org.json.JSONObject;
 import java.text.ParseException;
 
 public class Connect {
-    public static final int PARSER_GSON = 10;
-    public static final int PARSER_JSON = 11;
-    private static final String LOG_TAG = Connect.class.getName();
-
-    private static Connect _instance;
+    private static Connect instance;
     private AsyncHttpClient client;
-    private int mParser = PARSER_JSON;
-    private long percentage;
 
-    private Connect() {}
-
-    public static Connect getInstance() {
-        if (_instance == null) {
-            _instance = new Connect();
-            _instance.client = new AsyncHttpClient();
-        }
-
-        return _instance;
+    private Connect() {
     }
 
-    public void getRequestWithParam(RequestParams requestParams,final ModelResponse modelResponse , final ConnectCallback callback) {
-        Log.d("TAG", "getRequestWithParams");
-        client.get("http://resources.finance.ua/ru/public/currency-cash.json",requestParams,new JsonHttpResponseHandler()
-        {
+    public static Connect getInstance() {
+        if (instance == null) {
+            instance = new Connect();
+            instance.client = new AsyncHttpClient();
+        }
+
+        return instance;
+    }
+
+    public void getRequestWithParam(RequestParams requestParams, final ModelResponse modelResponse, final ConnectCallback callback) {
+        client.get(Constants.DATA_SOURCE_KEY, requestParams, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onProgress(int bytesWritten, int totalSize) {
                         super.onProgress(bytesWritten, totalSize);
-                        long progressPercentage = (long)10*bytesWritten/totalSize;
+                        long progressPercentage = (long) ((bytesWritten * 10) / totalSize);
                         callback.onProgress(progressPercentage);
                     }
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        Log.d("TAG", "succuess");
+                        Log.d(Constants.LOG_TAG, "success");
                         parseData(response, modelResponse, callback);
                     }
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        Log.d("TAG", "succuessArray");
+                        Log.d(Constants.LOG_TAG, "successArray");
                         parseData(response, modelResponse, callback);
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        super.onFailure(statusCode, headers, throwable, errorResponse);
-                        Log.d("TAG", "failure");
+//                        super.onFailure(statusCode, headers, throwable, errorResponse);
+                        Log.d(Constants.LOG_TAG, "failure");
+                        callback.onFailure();
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                        super.onFailure(statusCode, headers, throwable, errorResponse);
-                        Log.d("TAG", "failureArray");
+//                        super.onFailure(statusCode, headers, throwable, errorResponse);
+                        Log.d(Constants.LOG_TAG, "failureArray");
                     }
                 }
         );
@@ -79,7 +74,6 @@ public class Connect {
     private void parseData(Object jsonObject, ModelResponse modelObject, ConnectCallback callback) {
         if (null != modelObject) {
             try {
-
                 modelObject.configure(jsonObject);
                 callback.onSuccess(modelObject);
             } catch (JSONException e) {
@@ -88,13 +82,5 @@ public class Connect {
                 e.printStackTrace();
             }
         }
-    }
-
-    public int getParser() {
-        return mParser;
-    }
-
-    public long getPercentage() {
-        return percentage;
     }
 }

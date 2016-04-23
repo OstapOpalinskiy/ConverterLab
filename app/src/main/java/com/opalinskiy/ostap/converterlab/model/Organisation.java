@@ -1,4 +1,6 @@
-package com.opalinskiy.ostap.converterlab.models.organisation;
+package com.opalinskiy.ostap.converterlab.model;
+
+
 
 public class Organisation {
 
@@ -15,6 +17,11 @@ public class Organisation {
     private String address;
     private String link;
     private Currencies currencies;
+    private String date;
+
+    public Organisation() {
+        currencies = new Currencies();
+    }
 
     public String getId() {
         return id;
@@ -134,5 +141,32 @@ public class Organisation {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Organisation{" +
+                "id='" + id + '\'' +
+                ", oldId=" + oldId +
+                ", orgType=" + orgType +
+                ", branch=" + branch +
+                ", title='" + title + '\'' +
+                ", regionId='" + regionId + '\'' +
+                ", region='" + region + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", city='" + city + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", link='" + link + '\'' +
+                ", currencies=" + currencies +
+                '}';
     }
 }
