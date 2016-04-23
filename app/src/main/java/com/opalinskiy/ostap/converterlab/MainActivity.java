@@ -28,7 +28,8 @@ import com.opalinskiy.ostap.converterlab.utils.dbUtils.DbManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements EventHandler, SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
+public class MainActivity extends AppCompatActivity implements EventHandler, SwipeRefreshLayout.OnRefreshListener,
+        SearchView.OnQueryTextListener {
 
     private List<Organisation> organisations;
     private RecyclerView recyclerView;
@@ -68,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
             public void onFailure() {
                 Log.d(Constants.LOG_TAG, "onFailure=");
                 organisations = dbManager.readListOfOrganisationsFromDB();
-                dbManager.fillOrganisationWithCourses(organisations.get(1));
-                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(1));
+                dbManager.fillOrganisationWithCourses(organisations.get(0));
+                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
 //                Log.d(Constants.LOG_TAG, "bid from first of DB: " + organisations.get(0).
 //                        getCurrencies().getCurrencyList().get(0).getBid());
                 showList(organisations);

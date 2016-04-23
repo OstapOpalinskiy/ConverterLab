@@ -139,17 +139,18 @@ public class DbManager {
     }
 
     public void writeAllCoursesToDb(List<Organisation> list) {
+       database.delete(dbConstants.TABLE_COURSES, null, null);
         for (int i = 0; i < list.size(); i++) {
             writeCourseToDb(list.get(i));
         }
     }
 
-    public void writeCourseToDb(Organisation organisations) {
-        database.delete(dbConstants.TABLE_COURSES, null, null);
-        List<Currency> listCurrencies = organisations.getCurrencies().getCurrencyList();
+    public void writeCourseToDb(Organisation organisation) {
+        List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
         ContentValues cv = new ContentValues();
         for (int i = 0; i < listCurrencies.size(); i++) {
-            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisations.getId());
+            Log.d(Constants.LOG_TAG, "write curencies for " + organisation.getTitle());
+            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
             cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
             cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
             cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
@@ -168,7 +169,8 @@ public class DbManager {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     Log.d(Constants.LOG_TAG, "id from courses" + cursor.getString(1) );
-                    Log.d(Constants.LOG_TAG, "id from org" +organisation.getId() );
+                    Log.d(Constants.LOG_TAG, "id from org" +organisation.getId());
+                    Log.d(Constants.LOG_TAG, "cursor count: " + cursor.getCount());
                     Log.d(Constants.LOG_TAG, "=============================================================");
 
                     if (cursor.getString(1).equals(organisation.getId())) {
@@ -194,7 +196,7 @@ public class DbManager {
     }
 
     public Cursor getCourses() {
-        return database.query(dbConstants.TABLE_COURSES, null, null, null, null, null, null);
+        return database.rawQuery("SELECT * FROM " + dbConstants.TABLE_COURSES, null);
     }
 
 
