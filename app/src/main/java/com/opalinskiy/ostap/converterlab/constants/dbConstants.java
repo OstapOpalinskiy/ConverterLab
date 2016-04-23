@@ -23,7 +23,7 @@ public class dbConstants {
     public static final String COLUMN_PHONE = "phone";
     public static final String COLUMN_ADDRESS = "address";
     public static final String COLUMN_LINK = "link";
-    public static final String COLUMN_VALUE = "newValue";
+    public static final String COLUMN_VALUE = "value";
     public static final String COLUMN_ID_CURRENCY = "idCurrency";
     public static final String COLUMN_NAME_CURRENCY = "nameCurrency";
     public static final String COLUMN_ASK_CURRENCY = "ask";

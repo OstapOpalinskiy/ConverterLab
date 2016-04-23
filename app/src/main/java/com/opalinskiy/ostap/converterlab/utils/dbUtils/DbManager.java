@@ -76,8 +76,6 @@ public class DbManager {
         database.delete(tableName, null, null);
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
-//            Log.d(Constants.LOG_TAG, "id: " + entry.getKey());
-//            Log.d(Constants.LOG_TAG, "value: " + entry.getValue());
             cv.put(dbConstants.PRIMARY_KEY_ID, entry.getKey());
             cv.put(dbConstants.COLUMN_VALUE, entry.getValue());
             database.insert(tableName, null, cv);
@@ -89,12 +87,12 @@ public class DbManager {
                 "organizations.id, " +
                 "organizations.oldId, " +
                 "organizations.orgType, " +
-                "orgTypes.newValue, " +
+                "orgTypes.value, " +
                 "organizations.title, " +
                 "organizations.regionId, " +
-                "regions.newValue, " +
+                "regions.value, " +
                 "organizations.cityId, " +
-                "cities.newValue, " +
+                "cities.value, " +
                 "organizations.phone, " +
                 "organizations.address, " +
                 "organizations.link, " +
@@ -140,7 +138,7 @@ public class DbManager {
     }
 
     public void writeAllCoursesToDb(List<Organisation> list) {
-       database.delete(dbConstants.TABLE_COURSES, null, null);
+        database.delete(dbConstants.TABLE_COURSES, null, null);
         for (int i = 0; i < list.size(); i++) {
             writeCourseToDb(list.get(i));
         }
@@ -200,58 +198,61 @@ public class DbManager {
         dbHelper.onUpgrade(database, 1, 1);
     }
 
-   public void setCurrencyVariationForList(List<Organisation> list){
-       for(int i = 0; i < list.size(); i++){
-           List<Currency> currencyList = list.get(i).getCurrencies().getCurrencyList();
-           for(int j = 0; j < currencyList.size(); j++ ){
-               setCurrencyVariation(list.get(i), currencyList.get(j));
-           }
-       }
-   }
+    public void setCurrencyVariationForList(List<Organisation> list) {
+        for (int i = 0; i < list.size(); i++) {
+            List<Currency> currencyList = list.get(i).getCurrencies().getCurrencyList();
+            for (int j = 0; j < currencyList.size(); j++) {
+                setCurrencyVariation(list.get(i), currencyList.get(j));
+            }
+        }
+    }
 
 
-    public void setCurrencyVariation(Organisation organisation, Currency currency){
+    public void setCurrencyVariation(Organisation organisation, Currency currency) {
         Log.d(Constants.LOG_TAG, "org id in setCurrencyVariation: " + organisation.getId());
         Log.d(Constants.LOG_TAG, "currency Name in setCurrencyVariation: " + currency.getNameCurrency());
         Currency currencyFromDB = findCurrencyInDb(organisation.getId(), currency.getIdCurrency());
         Log.d(Constants.LOG_TAG, "currency from db is null" + (currencyFromDB == null));
         compareAskBid(currency, currencyFromDB);
-        }
+    }
 
     private void compareAskBid(Currency currency, Currency currencyFromDB) {
         double ask = 0;
         double bid = 0;
         double askDb = 0;
         double bidDb = 0;
-        if(!TextUtils.isEmpty(currency.getAsk())){
-            ask   = Double.parseDouble(currency.getAsk());
-        }
 
-        if(!TextUtils.isEmpty(currency.getBid())){
-            bid   = Double.parseDouble(currency.getBid());
-        }
+        if (currencyFromDB != null) {
+            if (!TextUtils.isEmpty(currency.getAsk())) {
+                ask = Double.parseDouble(currency.getAsk());
+            }
 
-        if(!TextUtils.isEmpty(currencyFromDB.getAsk())){
-            askDb = Double.parseDouble(currency.getBid());
-        }
+            if (!TextUtils.isEmpty(currency.getBid())) {
+                bid = Double.parseDouble(currency.getBid());
+            }
 
-        if(!TextUtils.isEmpty(currencyFromDB.getBid())){
-            bidDb = Double.parseDouble(currency.getBid());
-        }
+            if (!TextUtils.isEmpty(currencyFromDB.getAsk())) {
+                askDb = Double.parseDouble(currency.getBid());
+            }
 
-        if(ask >= askDb){
-            currency.setChangeAsk(Constants.INCREASE_KEY);
-        } else {
-            currency.setChangeAsk(Constants.DECREASE_KEY);
-        }
-        if(bid >= bidDb){
-            currency.setChangeBid(Constants.INCREASE_KEY);
-        } else {
-            currency.setChangeBid(Constants.DECREASE_KEY);
+            if (!TextUtils.isEmpty(currencyFromDB.getBid())) {
+                bidDb = Double.parseDouble(currency.getBid());
+            }
+
+            if (ask >= askDb) {
+                currency.setChangeAsk(Constants.INCREASE_KEY);
+            } else {
+                currency.setChangeAsk(Constants.DECREASE_KEY);
+            }
+            if (bid >= bidDb) {
+                currency.setChangeBid(Constants.INCREASE_KEY);
+            } else {
+                currency.setChangeBid(Constants.DECREASE_KEY);
+            }
         }
     }
 
-    public Currency findCurrencyInDb(String organisationId, String currencyId){
+    public Currency findCurrencyInDb(String organisationId, String currencyId) {
         Cursor cursor = null;
         Currency currency = null;
         try {
@@ -261,12 +262,8 @@ public class DbManager {
                     if (cursor.getString(1).equals(organisationId)
                             && currencyId.equals(cursor.getString(2))) {
                         currency = new Currency();
-                      //  currency.setIdCurrency(cursor.getString(1));
-                      //  currency.setNameCurrency(cursor.getString(2));
                         currency.setAsk(cursor.getString(4));
-                        //currency.setChangeAsk(cursor.getString(4));
                         currency.setBid(cursor.getString(6));
-                       // currency.setChangeBid(cursor.getString(6));
                         return currency;
                     }
                 } while (cursor.moveToNext());
@@ -280,5 +277,4 @@ public class DbManager {
         }
         return null;
     }
-
-    }
+}

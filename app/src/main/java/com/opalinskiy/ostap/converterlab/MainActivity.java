@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
 
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-
         Log.d("TAG", "before getData response in main");
         Api.getDataResponse(new ConnectCallback() {
             @Override
@@ -57,14 +56,8 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
-                //   dbManager.writeListOfOrganisationsToDb(organisations);
                 dbManager.setCurrencyVariationForList(organisations);
                 dbManager.writeDataToDb(dataResponse);
-               // Currency currencyFromDB =  dbManager.findCurrencyInDb(organisations.get(0).getId(), "RUB");
-
-                Log.d(Constants.LOG_TAG, "Currency from DB ask " + organisations.get(0)
-                        .getCurrencies().getCurrencyList().get(0).getChangeAsk());
-              //  Log.d(Constants.LOG_TAG, "Currency from DB bid " + currencyFromDB.getBid());
                 showList(organisations);
                 snackbar.dismiss();
             }
@@ -75,8 +68,6 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
                 organisations = dbManager.readListOfOrganisationsFromDB();
                 dbManager.fillOrganisationWithCourses(organisations.get(0));
                 Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
-//                Log.d(Constants.LOG_TAG, "bid from first of DB: " + organisations.get(0).
-//                        getCurrencies().getCurrencyList().get(0).getBid());
                 showList(organisations);
             }
 
@@ -87,25 +78,6 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
                 snackbar.show();
             }
         });
-//        Cursor cursor = dbManager.readOrganisationsFromDb();
-//        if (cursor != null && cursor.moveToFirst()) {
-//            do {
-//                Log.d("TAG", "" + cursor.getString(0));
-//                Log.d("TAG", "" + cursor.getString(1));
-//                Log.d("TAG", "" + cursor.getString(2));
-//                Log.d("TAG", "" + cursor.getString(3));
-//                Log.d("TAG", "" + cursor.getString(4));
-//                Log.d("TAG", "" + cursor.getString(5));
-//                Log.d("TAG", "" + cursor.getString(6));
-//                Log.d("TAG", "" + cursor.getString(7));
-//                Log.d("TAG", "" + cursor.getString(8));
-//                Log.d("TAG", "" + cursor.getString(9));
-//                Log.d("TAG", "" + cursor.getString(10));
-//                Log.d("TAG", "" + cursor.getString(11));
-//                Log.d("TAG", "" + cursor.getString(12));
-//                Log.d("TAG", "=================================================================");
-//            } while (cursor.moveToNext());
-//        }
     }
 
     @Override
@@ -146,8 +118,6 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
     private void refreshData() {
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-
-
         Api.getDataResponse(new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {

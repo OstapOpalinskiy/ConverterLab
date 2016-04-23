@@ -1,5 +1,7 @@
 package com.opalinskiy.ostap.converterlab.model;
 
+import com.opalinskiy.ostap.converterlab.constants.Constants;
+
 /**
  * Created by Evronot on 21.04.2016.
  */
@@ -10,6 +12,11 @@ public class Currency {
     private String changeAsk;
     private String bid;
     private String changeBid;
+
+    public Currency(){
+        changeAsk = Constants.INCREASE_KEY;
+        changeBid = Constants.INCREASE_KEY;
+    }
 
     public String getIdCurrency() {
         return idCurrency;
