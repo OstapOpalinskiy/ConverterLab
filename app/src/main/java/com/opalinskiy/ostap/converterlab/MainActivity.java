@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
     private SwipeRefreshLayout swipeRefreshLayout;
     private DbManager dbManager;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
