@@ -25,14 +25,14 @@ public class DbHelper extends SQLiteOpenHelper {
             "("+  dbConstants.PRIMARY_KEY_ID +")" +
             "FOREIGN KEY (" + dbConstants.COLUMN_REGION_ID + ")REFERENCES "+ dbConstants.TABLE_REGIONS +
             "("+ dbConstants.PRIMARY_KEY_ID +")" +
-            "FOREIGN KEY (" + dbConstants.COLUMN_ID + ")REFERENCES "+ dbConstants.TABLE_COURSES +
+            "FOREIGN KEY (" + dbConstants.COLUMN_ID + ")REFERENCES "+ dbConstants.TABLE_EXCHANGE_RATES +
             "("+ dbConstants.COLUMN_ID_ORGANIZATIONS +")" +
             "FOREIGN KEY (" + dbConstants.COLUMN_CITY_ID + ")REFERENCES "+ dbConstants.TABLE_CITIES +
             "("+ dbConstants.PRIMARY_KEY_ID +")" + ");";
 
 
-    private static final String CREATE_COURSE_TABLE = "create table " +
-            dbConstants.TABLE_COURSES + " (" + dbConstants.PRIMARY_KEY_ID + " integer primary key autoincrement, " +
+    private static final String CREATE_EXCHANGE_RATE_TABLE = "create table " +
+            dbConstants.TABLE_EXCHANGE_RATES + " (" + dbConstants.PRIMARY_KEY_ID + " integer primary key autoincrement, " +
             dbConstants.COLUMN_ID_ORGANIZATIONS + " text, " +
             dbConstants.COLUMN_ID_CURRENCY + " text, " +
             dbConstants.COLUMN_NAME_CURRENCY + " text, " +
@@ -59,11 +59,6 @@ public class DbHelper extends SQLiteOpenHelper {
             dbConstants.TABLE_CITIES + " (" + dbConstants.PRIMARY_KEY_ID + " TEXT PRIMARY KEY ON CONFLICT REPLACE, " +
             dbConstants.COLUMN_VALUE + " text);";
 
-    private static final String CREATE_DATE_TABLE = "create table " +
-            dbConstants.TABLE_DATE + " (" + dbConstants.PRIMARY_KEY_ID + " integer primary key autoincrement, " +
-            dbConstants.COLUMN_DATE + " text);";
-
-
     public DbHelper(Context context) {
         super(context, dbConstants.DATABASE_NAME, null, dbConstants.DATABASE_VERSION);
     }
@@ -72,11 +67,10 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_ORGANIZATIONS_TABLE);
         db.execSQL(CREATE_CURRENCIES_TABLE);
-        db.execSQL(CREATE_COURSE_TABLE);
+        db.execSQL(CREATE_EXCHANGE_RATE_TABLE);
         db.execSQL(CREATE_REGIONS_TABLE);
         db.execSQL(CREATE_ORG_TYPES_TABLE);
         db.execSQL(CREATE_CITIES_TABLE);
-        db.execSQL(CREATE_DATE_TABLE);
     }
 
     @Override
@@ -86,8 +80,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_CURRENCIES);
         db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_REGIONS);
         db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_CITIES);
-        db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_COURSES);
-        db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_DATE);
+        db.execSQL("DROP TABLE IF EXISTS " + dbConstants.TABLE_EXCHANGE_RATES);
         onCreate(db);
     }
 }

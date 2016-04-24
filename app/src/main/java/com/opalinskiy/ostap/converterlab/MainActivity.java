@@ -22,9 +22,12 @@ import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.databaseUtils.DbManager;
+import com.opalinskiy.ostap.converterlab.utils.DateParser;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements EventHandler, SwipeRefreshLayout.OnRefreshListener,
@@ -49,15 +52,25 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
 
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-        Log.d("TAG", "before getData response in main");
+        Calendar calendar = null;
+        Calendar calendarYounger = null;
+
+        try {
+           calendar = DateParser.toCalendar("1971-04-24T12:01:37+03:00");
+           calendarYounger = DateParser.toCalendar("2016-04-24T12:01:36+03:00");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Log.d("TAG", "time" +  (calendar.getTimeInMillis() < calendarYounger.getTimeInMillis()));
         Api.getDataResponse(new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
-                dbManager.setCurrencyVariationForList(organisations);
-                dbManager.writeDataToDb(dataResponse);
+                dbManager.setRatesVariationForList(organisations);
+                dbManager.writeAllDataToDb(dataResponse);
+               // dbManager.smartWriteIntoDbList(organisations);
                 showList(organisations);
                 snackbar.dismiss();
             }
@@ -66,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
             public void onFailure() {
                 Log.d(Constants.LOG_TAG, "onFailure=");
                 organisations = dbManager.readListOfOrganisationsFromDB();
-                dbManager.fillOrganisationWithCourses(organisations.get(0));
+                dbManager.setRatesForList(organisations);
                 Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
                 showList(organisations);
             }

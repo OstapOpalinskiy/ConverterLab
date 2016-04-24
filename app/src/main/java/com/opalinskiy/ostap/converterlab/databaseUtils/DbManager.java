@@ -12,7 +12,9 @@ import com.opalinskiy.ostap.converterlab.constants.dbConstants;
 import com.opalinskiy.ostap.converterlab.model.Currency;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
+import com.opalinskiy.ostap.converterlab.utils.DateParser;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,68 +42,14 @@ public class DbManager {
         }
     }
 
-    public void writeListOfOrganisationsToDb(List<Organisation> list) {
-        database.delete(dbConstants.TABLE_ORGANIZATIONS, null, null);
-        for (int i = 0; i < list.size(); i++) {
-            writeOrganisationToDb(list.get(i));
-        }
-    }
-
-    public void writeOrganisationToDb(Organisation org) {
-        ContentValues cv = new ContentValues();
-        cv.put(dbConstants.COLUMN_ID, org.getId());
-        cv.put(dbConstants.COLUMN_OLD_ID, org.getOldId());
-        cv.put(dbConstants.COLUMN_ORG_TYPE, org.getOrgType());
-        cv.put(dbConstants.COLUMN_TITLE, org.getTitle());
-        cv.put(dbConstants.COLUMN_REGION_ID, org.getRegionId());
-        cv.put(dbConstants.COLUMN_CITY_ID, org.getCityId());
-        cv.put(dbConstants.COLUMN_PHONE, org.getPhone());
-        cv.put(dbConstants.COLUMN_ADDRESS, org.getAddress());
-        cv.put(dbConstants.COLUMN_LINK, org.getLink());
-        cv.put(dbConstants.COLUMN_DATE, org.getDate());
-        database.insert(dbConstants.TABLE_ORGANIZATIONS, null, cv);
-    }
-
-    public void writeDataToDb(DataResponse response) {
-        writeListOfOrganisationsToDb(response.getOrganisations());
+    public void writeAllDataToDb(DataResponse response) {
+        // writeListOfOrganisationsToDb(response.getOrganisations());
+        smartWriteIntoDbList(response.getOrganisations());
         writeMapToDb(response.getCurrencies(), dbConstants.TABLE_CURRENCIES);
         writeMapToDb(response.getCities(), dbConstants.TABLE_CITIES);
         writeMapToDb(response.getRegions(), dbConstants.TABLE_REGIONS);
         writeMapToDb(response.getOrgTypes(), dbConstants.TABLE_ORG_TYPES);
-        writeAllCoursesToDb(response.getOrganisations());
-    }
-
-    public void writeMapToDb(Map<String, String> map, String tableName) {
-        ContentValues cv = new ContentValues();
-        database.delete(tableName, null, null);
-
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            cv.put(dbConstants.PRIMARY_KEY_ID, entry.getKey());
-            cv.put(dbConstants.COLUMN_VALUE, entry.getValue());
-            database.insert(tableName, null, cv);
-        }
-    }
-
-    public Cursor readOrganisationsFromDb() {
-        String query = "SELECT " +
-                "organizations.id, " +
-                "organizations.oldId, " +
-                "organizations.orgType, " +
-                "orgTypes.value, " +
-                "organizations.title, " +
-                "organizations.regionId, " +
-                "regions.value, " +
-                "organizations.cityId, " +
-                "cities.value, " +
-                "organizations.phone, " +
-                "organizations.address, " +
-                "organizations.link, " +
-                "organizations.date " +
-                "FROM   organizations, regions, cities, orgTypes " +
-                "WHERE  regions._id=organizations.regionId AND " +
-                "cities._id=organizations.cityId AND " +
-                "orgTypes._id=organizations.orgType";
-        return database.rawQuery(query, null);
+        //  writeAllCoursesToDb(response.getOrganisations());
     }
 
     public List<Organisation> readListOfOrganisationsFromDB() {
@@ -137,34 +85,17 @@ public class DbManager {
         return list;
     }
 
-    public void writeAllCoursesToDb(List<Organisation> list) {
-        database.delete(dbConstants.TABLE_COURSES, null, null);
+    public void setRatesForList(List<Organisation> list) {
         for (int i = 0; i < list.size(); i++) {
-            writeCourseToDb(list.get(i));
+            fillOrganisationWithRates(list.get(i));
         }
     }
 
-    public void writeCourseToDb(Organisation organisation) {
-        List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
-        ContentValues cv = new ContentValues();
-        for (int i = 0; i < listCurrencies.size(); i++) {
-            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
-            cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
-            cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
-            cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
-            cv.put(dbConstants.COLUMN_CHANGE_ASK, listCurrencies.get(i).getChangeAsk());
-            cv.put(dbConstants.COLUMN_BID_CURRENCY, listCurrencies.get(i).getBid());
-            cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
-            database.insert(dbConstants.TABLE_COURSES, null, cv);
-        }
-
-    }
-
-    public void fillOrganisationWithCourses(Organisation organisation) {
+   private void fillOrganisationWithRates(Organisation organisation) {
         List<Currency> list = new ArrayList();
         Cursor cursor = null;
         try {
-            cursor = getCourses();
+            cursor = getRatesTable();
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     if (cursor.getString(1).equals(organisation.getId())) {
@@ -189,30 +120,188 @@ public class DbManager {
         }
     }
 
-    public Cursor getCourses() {
-        return database.rawQuery("SELECT * FROM " + dbConstants.TABLE_COURSES, null);
-    }
-
-
-    public void recreateDb() {
-        dbHelper.onUpgrade(database, 1, 1);
-    }
-
-    public void setCurrencyVariationForList(List<Organisation> list) {
+    public void setRatesVariationForList(List<Organisation> list) {
         for (int i = 0; i < list.size(); i++) {
             List<Currency> currencyList = list.get(i).getCurrencies().getCurrencyList();
             for (int j = 0; j < currencyList.size(); j++) {
-                setCurrencyVariation(list.get(i), currencyList.get(j));
+                setRatesVariation(list.get(i), currencyList.get(j));
             }
         }
     }
 
+//    public void writeListOfOrganisationsToDb(List<Organisation> list) {
+//        database.delete(dbConstants.TABLE_ORGANIZATIONS, null, null);
+//        for (int i = 0; i < list.size(); i++) {
+//            writeOrganisationToDb(list.get(i));
+//        }
+//    }
 
-    public void setCurrencyVariation(Organisation organisation, Currency currency) {
-        Log.d(Constants.LOG_TAG, "org id in setCurrencyVariation: " + organisation.getId());
-        Log.d(Constants.LOG_TAG, "currency Name in setCurrencyVariation: " + currency.getNameCurrency());
+    // write whole info from organisation to db
+   private void writeDataIntoOrgsTable(Organisation org) {
+        writeOrganisationToDb(org);
+        writeCourseToDb(org);
+    }
+
+    //updateWholeOrganisation
+    private void updateDataInOrgsAndRates(Organisation org) {
+        updateExchangeRates(org);
+        updateOrganisationInDb(org);
+    }
+
+    //writeOrgWithCondition
+    private void smartWriteIntoDB(Organisation org) {
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery("SELECT * FROM " + dbConstants.TABLE_ORGANIZATIONS, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    if (org.getId().equals(cursor.getString(1))) {
+                        Log.d(Constants.LOG_TAG, "sameId: " + cursor.getString(1));
+                        Log.d(Constants.LOG_TAG, "sameId: " + org.getId());
+                        if (isFirstOlder(cursor.getString(10), org.getDate())) {
+                            updateDataInOrgsAndRates(org);
+                            Log.d(Constants.LOG_TAG, "updated: ");
+                        }
+                        return;
+                    }
+                } while (cursor.moveToNext());
+            }
+            writeDataIntoOrgsTable(org);
+            Log.d(Constants.LOG_TAG, "written ");
+        } catch (Exception e) {
+            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private void smartWriteIntoDbList(List<Organisation> list) {
+        for (int i = 0; i < list.size(); i++) {
+            smartWriteIntoDB(list.get(i));
+        }
+    }
+
+    //metod to update organisation
+//    public void updateOrganisation(ContentValues cv, Organisation org) {
+//        database.update(dbConstants.TABLE_ORGANIZATIONS, cv, "_id=" + org.getId(), null);
+//    }
+
+//    public void updateCourses(ContentValues cv, Organisation org) {
+//        database.update(dbConstants.TABLE_COURSES, cv, "_id=" + org.getId(), null);
+//    }
+
+
+    private void writeOrganisationToDb(Organisation org) {
+        database.insert(dbConstants.TABLE_ORGANIZATIONS, null, getCVFromOrganisation(org));
+    }
+
+    private ContentValues getCVFromOrganisation(Organisation org) {
+        ContentValues cv = new ContentValues();
+        cv.put(dbConstants.COLUMN_ID, org.getId());
+        cv.put(dbConstants.COLUMN_OLD_ID, org.getOldId());
+        cv.put(dbConstants.COLUMN_ORG_TYPE, org.getOrgType());
+        cv.put(dbConstants.COLUMN_TITLE, org.getTitle());
+        cv.put(dbConstants.COLUMN_REGION_ID, org.getRegionId());
+        cv.put(dbConstants.COLUMN_CITY_ID, org.getCityId());
+        cv.put(dbConstants.COLUMN_PHONE, org.getPhone());
+        cv.put(dbConstants.COLUMN_ADDRESS, org.getAddress());
+        cv.put(dbConstants.COLUMN_LINK, org.getLink());
+        cv.put(dbConstants.COLUMN_DATE, org.getDate());
+        return cv;
+    }
+
+    private void updateOrganisationInDb(Organisation org) {
+        database.update(dbConstants.TABLE_ORGANIZATIONS, getCVFromOrganisation(org)
+                , "_id=" + org.getId(), null);
+    }
+
+    private void writeMapToDb(Map<String, String> map, String tableName) {
+        ContentValues cv = new ContentValues();
+        database.delete(tableName, null, null);
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            cv.put(dbConstants.PRIMARY_KEY_ID, entry.getKey());
+            cv.put(dbConstants.COLUMN_VALUE, entry.getValue());
+            database.insert(tableName, null, cv);
+        }
+    }
+
+    private Cursor readOrganisationsFromDb() {
+        String query = "SELECT " +
+                "organizations.id, " +
+                "organizations.oldId, " +
+                "organizations.orgType, " +
+                "orgTypes.value, " +
+                "organizations.title, " +
+                "organizations.regionId, " +
+                "regions.value, " +
+                "organizations.cityId, " +
+                "cities.value, " +
+                "organizations.phone, " +
+                "organizations.address, " +
+                "organizations.link, " +
+                "organizations.date " +
+                "FROM   organizations, regions, cities, orgTypes " +
+                "WHERE  regions._id=organizations.regionId AND " +
+                "cities._id=organizations.cityId AND " +
+                "orgTypes._id=organizations.orgType";
+        return database.rawQuery(query, null);
+    }
+
+
+//    public void writeAllCoursesToDb(List<Organisation> list) {
+//        database.delete(dbConstants.TABLE_EXCHANGE_RATES, null, null);
+//        for (int i = 0; i < list.size(); i++) {
+//            writeCourseToDb(list.get(i));
+//        }
+//    }
+
+    private void writeCourseToDb(Organisation organisation) {
+        List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
+        ContentValues cv = new ContentValues();
+        for (int i = 0; i < listCurrencies.size(); i++) {
+            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
+            cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
+            cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
+            cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
+            cv.put(dbConstants.COLUMN_CHANGE_ASK, listCurrencies.get(i).getChangeAsk());
+            cv.put(dbConstants.COLUMN_BID_CURRENCY, listCurrencies.get(i).getBid());
+            cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
+            database.insert(dbConstants.TABLE_EXCHANGE_RATES, null, cv);
+        }
+
+    }
+
+   private void updateExchangeRates(Organisation organisation) {
+        List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
+        ContentValues cv = new ContentValues();
+        for (int i = 0; i < listCurrencies.size(); i++) {
+            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
+            cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
+            cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
+            cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
+            cv.put(dbConstants.COLUMN_CHANGE_ASK, listCurrencies.get(i).getChangeAsk());
+            cv.put(dbConstants.COLUMN_BID_CURRENCY, listCurrencies.get(i).getBid());
+            cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
+            database.update(dbConstants.TABLE_EXCHANGE_RATES, cv, "_id=" + organisation.getId(), null);
+        }
+
+    }
+
+    private Cursor getRatesTable() {
+        return database.rawQuery("SELECT * FROM " + dbConstants.TABLE_EXCHANGE_RATES, null);
+    }
+
+
+    private void recreateDb() {
+        dbHelper.onUpgrade(database, 1, 1);
+    }
+
+
+   private void setRatesVariation(Organisation organisation, Currency currency) {
         Currency currencyFromDB = findCurrencyInDb(organisation.getId(), currency.getIdCurrency());
-        Log.d(Constants.LOG_TAG, "currency from db is null" + (currencyFromDB == null));
         compareAskBid(currency, currencyFromDB);
     }
 
@@ -252,11 +341,11 @@ public class DbManager {
         }
     }
 
-    public Currency findCurrencyInDb(String organisationId, String currencyId) {
+    private Currency findCurrencyInDb(String organisationId, String currencyId) {
         Cursor cursor = null;
         Currency currency = null;
         try {
-            cursor = getCourses();
+            cursor = getRatesTable();
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     if (cursor.getString(1).equals(organisationId)
@@ -276,5 +365,17 @@ public class DbManager {
             }
         }
         return null;
+    }
+
+    private boolean isFirstOlder(String firstDate, String secondDate) {
+        long first = 0;
+        long second = 0;
+        try {
+            first = DateParser.toCalendar(firstDate).getTimeInMillis();
+            second = DateParser.toCalendar(secondDate).getTimeInMillis();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return (first < second);
     }
 }

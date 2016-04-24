@@ -7,7 +7,7 @@ public class dbConstants {
 
     public static final String TABLE_ORGANIZATIONS = "organizations";
     public static final String TABLE_CURRENCIES = "currencies";
-    public static final String TABLE_COURSES = "courses";
+    public static final String TABLE_EXCHANGE_RATES = "exchangeRates";
     public static final String TABLE_REGIONS = "regions";
     public static final String TABLE_CITIES = "cities";
     public static final String TABLE_ORG_TYPES = "orgTypes";
