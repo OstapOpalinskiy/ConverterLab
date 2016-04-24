@@ -26,6 +26,7 @@ import com.opalinskiy.ostap.converterlab.model.Organisation;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.utils.dbUtils.DbManager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,7 +181,9 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
 
     @Override
     public void onShowDetails(Organisation org) {
-        Toast.makeText(MainActivity.this, "onShow map", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(Constants.ORG_SERIALISE, (Serializable) org);
+        startActivity(intent);
     }
 
     @Override

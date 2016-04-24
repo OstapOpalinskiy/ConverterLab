@@ -169,12 +169,12 @@ public class DbManager {
                 do {
                     if (cursor.getString(1).equals(organisation.getId())) {
                         Currency currency = new Currency();
-                        currency.setIdCurrency(cursor.getString(1));
-                        currency.setNameCurrency(cursor.getString(2));
-                        currency.setAsk(cursor.getString(3));
-                        currency.setChangeAsk(cursor.getString(4));
-                        currency.setBid(cursor.getString(5));
-                        currency.setChangeBid(cursor.getString(6));
+                        currency.setIdCurrency(cursor.getString(2));
+                        currency.setNameCurrency(cursor.getString(3));
+                        currency.setAsk(cursor.getString(4));
+                        currency.setChangeAsk(cursor.getString(5));
+                        currency.setBid(cursor.getString(6));
+                        currency.setChangeBid(cursor.getString(7));
                         list.add(currency);
                     }
                 } while (cursor.moveToNext());

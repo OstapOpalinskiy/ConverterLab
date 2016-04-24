@@ -1,10 +1,11 @@
 package com.opalinskiy.ostap.converterlab.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Currencies {
+public class Currencies implements Serializable{
     public Currencies(){
         currencyList = new ArrayList();
     }

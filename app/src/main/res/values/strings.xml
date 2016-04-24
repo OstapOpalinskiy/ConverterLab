@@ -3,4 +3,6 @@
     <string name="title_activity_map">MapActivity</string>
     <string name="google_maps_key">AIzaSyBgFZQek2FS-sItDIEZ_KUhpk9eG8UjRSQ</string>
     <string name="no_maps">Google maos are not available</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="ask_bid">Покупка/\nПродажа</string>
 </resources>

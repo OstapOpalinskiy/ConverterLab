@@ -1,7 +1,6 @@
 package com.opalinskiy.ostap.converterlab.adapters;
 
 import android.support.design.widget.TabLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,13 +39,13 @@ public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdap
 
         organisation = organisations.get(i);
 
-        viewHolder.mTxtTitle.setText(organisation.getTitle());
-        viewHolder.mTxtRegion.setText(organisation.getRegion());
+        viewHolder.tvTitle.setText(organisation.getTitle());
+        viewHolder.tvRegion.setText(organisation.getRegion());
         if (!organisation.getRegion().equals(organisation.getCity())) {
-            viewHolder.mTxtCity.setText(organisation.getCity());
+            viewHolder.tvCity.setText(organisation.getCity());
         }
-        viewHolder.mTxtPhone.setText("Тел.: " + organisation.getPhone());
-        viewHolder.mTxtAddress.setText("Адрес : " + organisation.getAddress());
+        viewHolder.tvPhone.setText("Тел.: " + organisation.getPhone());
+        viewHolder.tvAddress.setText("Адрес : " + organisation.getAddress());
 
     }
 
@@ -62,32 +61,28 @@ public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdap
 
     class MyViewHolder extends RecyclerView.ViewHolder implements TabLayout.OnTabSelectedListener {
 
-        private CardView mCard;
-
-        private TextView mTxtTitle;
-        private TextView mTxtRegion;
-        private TextView mTxtCity;
-        private TextView mTxtPhone;
-        private TextView mTxtAddress;
-        private TabLayout mTabLayout;
+        private TextView tvTitle;
+        private TextView tvRegion;
+        private TextView tvCity;
+        private TextView tvPhone;
+        private TextView tvAddress;
+        private TabLayout tabLayout;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            mCard = (CardView) itemView.findViewById(R.id.mCard);
-            mTxtTitle = (TextView) itemView.findViewById(R.id.txtOrgTitle_IL);
-            mTxtRegion = (TextView) itemView.findViewById(R.id.txtRegion_IL);
-            mTxtCity = (TextView) itemView.findViewById(R.id.txtCity_IL);
-            mTxtPhone = (TextView) itemView.findViewById(R.id.txtPhone_IL);
-            mTxtAddress = (TextView) itemView.findViewById(R.id.txtAddress_IL);
+            tvTitle = (TextView) itemView.findViewById(R.id.txtOrgTitle_IL);
+            tvRegion = (TextView) itemView.findViewById(R.id.txtRegion_IL);
+            tvCity = (TextView) itemView.findViewById(R.id.txtCity_IL);
+            tvPhone = (TextView) itemView.findViewById(R.id.txtPhone_IL);
+            tvAddress = (TextView) itemView.findViewById(R.id.txtAddress_IL);
+            tabLayout = (TabLayout) itemView.findViewById(R.id.tabsLayout_IL);
 
-            mTabLayout = (TabLayout) itemView.findViewById(R.id.tabsLayout_IL);
+            tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_link));
+            tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_map));
+            tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_phone));
+            tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_next));
 
-            mTabLayout.addTab(mTabLayout.newTab().setIcon(R.drawable.ic_link));
-            mTabLayout.addTab(mTabLayout.newTab().setIcon(R.drawable.ic_map));
-            mTabLayout.addTab(mTabLayout.newTab().setIcon(R.drawable.ic_phone));
-            mTabLayout.addTab(mTabLayout.newTab().setIcon(R.drawable.ic_next));
-
-            mTabLayout.setOnTabSelectedListener(this);
+            tabLayout.setOnTabSelectedListener(this);
         }
 
         @Override

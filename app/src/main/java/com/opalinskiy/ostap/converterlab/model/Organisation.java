@@ -1,8 +1,9 @@
 package com.opalinskiy.ostap.converterlab.model;
 
 
+import java.io.Serializable;
 
-public class Organisation {
+public class Organisation implements Serializable {
 
     private String id;
     private int oldId;

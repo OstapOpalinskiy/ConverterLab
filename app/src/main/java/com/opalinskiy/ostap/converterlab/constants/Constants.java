@@ -14,4 +14,5 @@ public class Constants {
    public static final String ORG_TYPES_MAP_KEY = "orgTypes";
    public static final String INCREASE_KEY = "increase";
    public static final String DECREASE_KEY = "decrease";
+   public static final String ORG_SERIALISE = "serialise org";
 }
