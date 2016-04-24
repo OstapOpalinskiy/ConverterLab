@@ -2,7 +2,6 @@ package com.opalinskiy.ostap.converterlab;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -15,16 +14,14 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.opalinskiy.ostap.converterlab.adapters.OrganisationsAdapter;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
-import com.opalinskiy.ostap.converterlab.model.Currency;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
-import com.opalinskiy.ostap.converterlab.utils.dbUtils.DbManager;
+import com.opalinskiy.ostap.converterlab.databaseUtils.DbManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
