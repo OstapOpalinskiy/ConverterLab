@@ -1,6 +1,7 @@
 package com.opalinskiy.ostap.converterlab;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -15,6 +16,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 
 public class Connect {
@@ -79,6 +85,29 @@ public class Connect {
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getRequestSynchronous(Context context, ModelResponse modelResponse, ConnectCallback callback) throws IOException {
+        URL url = new URL(Constants.DATA_SOURCE_KEY);
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(10000);
+        conn.setRequestMethod("GET");
+
+        int respCode = conn.getResponseCode();
+        if (respCode == 200) {
+            final BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            try {
+               parseData(new JSONObject(sb.toString()), modelResponse, callback);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }

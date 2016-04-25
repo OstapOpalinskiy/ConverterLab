@@ -1,9 +1,13 @@
 package com.opalinskiy.ostap.converterlab;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,12 +26,11 @@ import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.databaseUtils.DbManager;
-import com.opalinskiy.ostap.converterlab.utils.DateParser;
+import com.opalinskiy.ostap.converterlab.receivers.AlarmReceiver;
+import com.opalinskiy.ostap.converterlab.services.LoaderService;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements EventHandler, SwipeRefreshLayout.OnRefreshListener,
@@ -49,28 +52,21 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
         swipeRefreshLayout.setOnRefreshListener(this);
         dbManager = new DbManager(this);
         dbManager.open();
+        startAlarmReceiver();
 
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-        Calendar calendar = null;
-        Calendar calendarYounger = null;
 
-        try {
-           calendar = DateParser.toCalendar("1971-04-24T12:01:37+03:00");
-           calendarYounger = DateParser.toCalendar("2016-04-24T12:01:36+03:00");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        Log.d("TAG", "time" +  (calendar.getTimeInMillis() < calendarYounger.getTimeInMillis()));
         Api.getDataResponse(new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
-                dbManager.setRatesVariationForList(organisations);
-                dbManager.writeAllDataToDb(dataResponse);
-               // dbManager.smartWriteIntoDbList(organisations);
+                startLoaderService();
+
+               // dbManager.smartWriteIntoDbList(organisations); dbManager.setRatesVariationForList(organisations);
+//                dbManager.writeAllDataToDb(dataResponse);
                 showList(organisations);
                 snackbar.dismiss();
             }
@@ -128,6 +124,11 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
         return false;
     }
 
+    private void startLoaderService(){
+        Intent intent = new Intent(this, LoaderService.class);
+        startService(intent);
+    }
+
     private void refreshData() {
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
@@ -173,6 +174,18 @@ public class MainActivity extends AppCompatActivity implements EventHandler, Swi
             Log.d(Constants.LOG_TAG, "==================================================================================");
         }
     }
+
+    private void startAlarmReceiver(){
+        Intent alarm = new Intent(this, AlarmReceiver.class);
+        boolean alarmRunning = (PendingIntent.getBroadcast(this, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
+        if(alarmRunning == false) {
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarm, 0);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime(), Constants.THIRTY_MINUTES, pendingIntent);
+        }
+    }
+
 
     @Override
     public void onOpenLink(Organisation org) {

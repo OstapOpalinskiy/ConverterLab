@@ -43,6 +43,19 @@
             android:name=".DetailActivity"
             android:label="@string/title_activity_detail"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <service
+            android:name=".services.LoaderService"
+            android:enabled="true" >
+        </service>
+
+        <receiver android:name=".receivers.AlarmReceiver"
+            android:exported="false">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+            <!--</intent-filter>-->
+        </receiver>
+
     </application>
 
 </manifest>

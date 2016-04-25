@@ -45,7 +45,7 @@ public class DetailActivity extends AppCompatActivity {
 
         init();
         setText();
-        fillCurrencyList(organisation);
+        fillExchangeRatesList(organisation);
 
 
     }
@@ -70,7 +70,7 @@ public class DetailActivity extends AppCompatActivity {
         tvPhone.setText(organisation.getPhone());
     }
 
-    private void fillCurrencyList(Organisation organisation) {
+    private void fillExchangeRatesList(Organisation organisation) {
         List<Currency> list = organisation.getCurrencies().getCurrencyList();
         for (int i = 0; i < list.size(); i++) {
             CurrencyListElementView elementView = new CurrencyListElementView(this);

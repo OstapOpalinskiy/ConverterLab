@@ -199,7 +199,7 @@ public class DbManager {
 
     private ContentValues getCVFromOrganisation(Organisation org) {
         ContentValues cv = new ContentValues();
-        cv.put(dbConstants.COLUMN_ID, org.getId());
+       // cv.put(dbConstants.COLUMN_ID, org.getId());
         cv.put(dbConstants.COLUMN_OLD_ID, org.getOldId());
         cv.put(dbConstants.COLUMN_ORG_TYPE, org.getOrgType());
         cv.put(dbConstants.COLUMN_TITLE, org.getTitle());
@@ -214,7 +214,7 @@ public class DbManager {
 
     private void updateOrganisationInDb(Organisation org) {
         database.update(dbConstants.TABLE_ORGANIZATIONS, getCVFromOrganisation(org)
-                , "_id=" + org.getId(), null);
+                , "id=" + "'" +org.getId() + "'", null);
     }
 
     private void writeMapToDb(Map<String, String> map, String tableName) {
@@ -278,14 +278,14 @@ public class DbManager {
         List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
         ContentValues cv = new ContentValues();
         for (int i = 0; i < listCurrencies.size(); i++) {
-            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
+         //   cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
             cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
             cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
             cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
             cv.put(dbConstants.COLUMN_CHANGE_ASK, listCurrencies.get(i).getChangeAsk());
             cv.put(dbConstants.COLUMN_BID_CURRENCY, listCurrencies.get(i).getBid());
             cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
-            database.update(dbConstants.TABLE_EXCHANGE_RATES, cv, "_id=" + organisation.getId(), null);
+            database.update(dbConstants.TABLE_EXCHANGE_RATES, cv, "idOrganization=" + "'" + organisation.getId() + "'", null);
         }
 
     }
