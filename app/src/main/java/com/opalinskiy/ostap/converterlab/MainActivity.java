@@ -49,7 +49,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         swipeRefreshLayout.setOnRefreshListener(this);
         dbManager = new DbManager(this);
         dbManager.open();
-        startAlarmReceiver();
+       // startAlarmReceiver();
 
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
