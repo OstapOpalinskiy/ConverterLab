@@ -7,9 +7,11 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.os.Bundle;
+
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractActionActivity;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.customView.CurrencyListElementView;
+import com.opalinskiy.ostap.converterlab.customView.ShareImageBody;
 import com.opalinskiy.ostap.converterlab.customView.ShareImageTitle;
 import com.opalinskiy.ostap.converterlab.model.Currency;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
@@ -76,10 +79,11 @@ public class DetailActivity extends AbstractActionActivity {
 
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
+//        layout.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        layout.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+//        ShareImageTitle title = new ShareImageTitle(this, organisation);
+//        layout.addView(title);
 
-        ShareImageTitle title = new ShareImageTitle(this, organisation);
-        layout.addView(title);
-        layout.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         setMenuListeners();
     }
@@ -149,39 +153,58 @@ public class DetailActivity extends AbstractActionActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        ShareImageTitle title = new ShareImageTitle(this, organisation);
+        layout.addView(title);
+        List<Currency> list = organisation.getCurrencies().getCurrencyList();
 
+        for (int i = 0; i < list.size(); i++) {
+            ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
+            layout.addView(currencyItem);
+        }
 
+        dialog = ShareFragment.newInstance(getBitmapFromView(layout));
+        dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
 
-                dialog = ShareFragment.newInstance(getBitmapFromView(layout));
-                dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
-
-       //icon = getBitmapFromView(layout);
+        //icon = getBitmapFromView(layout);
         Log.d("TAG", "on menu item seected");
 //        dialog = ShareFragment.newInstance(icon);
 
         return super.onOptionsItemSelected(item);
     }
 
-    public static Bitmap getBitmapFromView(View view) {
-        //Define a bitmap with the same size as the view
-
-//        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//    public  Bitmap getBitmapFromView(View view) {
+//        Display display = getWindowManager().getDefaultDisplay();
+//        int width = display.getWidth();
+//        int height = display.getHeight();
+//        //Define a bitmap with the same size as the view
+//
+//        view.layout(0, 0, width, layout.getMeasuredHeight());
 //        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
 //                Bitmap.Config.ARGB_8888);
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
-        //Bind a canvas to it
-        Canvas canvas = new Canvas(returnedBitmap);
-        //Get the view's background
-        Drawable bgDrawable =view.getBackground();
-        if (bgDrawable!=null)
-            //has background drawable, then draw it on the canvas
-            bgDrawable.draw(canvas);
-        else
-            //does not have background drawable, then draw white background on the canvas
-            canvas.drawColor(Color.WHITE);
-        // draw the view on the canvas
+//   //     Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
+//        //Bind a canvas to it
+//        Canvas canvas = new Canvas(returnedBitmap);
+//        //Get the view's background
+//        Drawable bgDrawable =view.getBackground();
+//        if (bgDrawable!=null)
+//            //has background drawable, then draw it on the canvas
+//            bgDrawable.draw(canvas);
+//        else
+//            //does not have background drawable, then draw white background on the canvas
+//            canvas.drawColor(Color.WHITE);
+//        // draw the view on the canvas
+//        view.draw(canvas);
+//        //return the bitmap
+//        return returnedBitmap;
+//    }
+
+    public static Bitmap getBitmapFromView(View view) {
+        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         view.draw(canvas);
-        //return the bitmap
-        return returnedBitmap;
+        return bitmap;
     }
 }
