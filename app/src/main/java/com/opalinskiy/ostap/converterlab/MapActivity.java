@@ -1,9 +1,7 @@
 package com.opalinskiy.ostap.converterlab;
 
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractMapActivity;
 import com.opalinskiy.ostap.converterlab.utils.MapLoader;
 
 import java.io.IOException;

@@ -1,8 +1,8 @@
-package com.opalinskiy.ostap.converterlab;
+package com.opalinskiy.ostap.converterlab.api;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.opalinskiy.ostap.converterlab.utils.connectUtils.Connect;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 

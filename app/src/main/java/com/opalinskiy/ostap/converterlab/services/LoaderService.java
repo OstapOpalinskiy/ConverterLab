@@ -5,9 +5,9 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.opalinskiy.ostap.converterlab.Api;
+import com.opalinskiy.ostap.converterlab.api.Api;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
-import com.opalinskiy.ostap.converterlab.databaseUtils.DbManager;
+import com.opalinskiy.ostap.converterlab.utils.databaseUtils.DbManager;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
@@ -26,6 +26,7 @@ public class LoaderService extends IntentService {
         Log.d(Constants.LOG_TAG, "handle intent service");
         dbManager = new DbManager(getApplicationContext());
         dbManager.open();
+
         Api.getDataResponseSynchronous(getApplicationContext(), new ConnectCallback() {
             @Override
             public void onSuccess(Object object) {

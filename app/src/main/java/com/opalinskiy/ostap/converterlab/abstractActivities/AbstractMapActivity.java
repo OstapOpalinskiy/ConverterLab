@@ -1,4 +1,4 @@
-package com.opalinskiy.ostap.converterlab;
+package com.opalinskiy.ostap.converterlab.abstractActivities;
 
         import android.app.Dialog;
         import android.app.DialogFragment;
@@ -12,6 +12,7 @@ package com.opalinskiy.ostap.converterlab;
 
         import com.google.android.gms.common.ConnectionResult;
         import com.google.android.gms.common.GoogleApiAvailability;
+        import com.opalinskiy.ostap.converterlab.R;
         import com.opalinskiy.ostap.converterlab.constants.Constants;
 
 public class AbstractMapActivity extends AppCompatActivity {

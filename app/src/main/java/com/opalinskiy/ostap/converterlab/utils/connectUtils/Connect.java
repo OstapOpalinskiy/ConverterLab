@@ -1,4 +1,4 @@
-package com.opalinskiy.ostap.converterlab;
+package com.opalinskiy.ostap.converterlab.utils.connectUtils;
 
 
 import android.content.Context;

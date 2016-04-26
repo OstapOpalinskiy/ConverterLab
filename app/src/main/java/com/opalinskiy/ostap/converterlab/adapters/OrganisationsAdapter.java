@@ -11,19 +11,19 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 
+import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractActionActivity;
 import com.opalinskiy.ostap.converterlab.R;
-import com.opalinskiy.ostap.converterlab.interfaces.EventHandler;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 
 import java.util.List;
 
 public class OrganisationsAdapter extends RecyclerView.Adapter<OrganisationsAdapter.MyViewHolder> implements Filterable {
-    private final EventHandler handler;
+    private final AbstractActionActivity handler;
     private List<Organisation> organisations;
     private Organisation organisation;
 
 
-    public OrganisationsAdapter(EventHandler handler, List<Organisation> contactList) {
+    public OrganisationsAdapter(AbstractActionActivity handler, List<Organisation> contactList) {
         this.handler = handler;
         this.organisations = contactList;
     }
