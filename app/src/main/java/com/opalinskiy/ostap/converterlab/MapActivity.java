@@ -6,7 +6,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,6 +37,7 @@ public class MapActivity extends AbstractMapActivity {
        if(connectionDetector.isConnected()){
            if (isGoogleMapsAvailable()) {
                setContentView(R.layout.activity_map);
+
                ((MapFragment) getFragmentManager().findFragmentById(R.id.google_map)).getMapAsync(new OnMapReadyCallback() {
                    @Override
                    public void onMapReady(GoogleMap googleMap) {
@@ -42,6 +45,12 @@ public class MapActivity extends AbstractMapActivity {
                        map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                        String address = getIntent().getStringExtra("address");
                        String city = getIntent().getStringExtra("city");
+
+                       ActionBar ab =  getSupportActionBar();
+                       ab.setTitle(city);
+                       ab.setSubtitle(address);
+                       ab.setDisplayHomeAsUpEnabled(true);
+
                        locationLoader = new MapLoader();
                        locationLoader.execute(city, address);
                        try {
@@ -111,6 +120,13 @@ public class MapActivity extends AbstractMapActivity {
 //        }
 //    }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        onBackPressed();
+        return super.onOptionsItemSelected(item);
+    }
+
     private void showAlertDialog(int title, int message) {
         AlertDialog.Builder ad = new AlertDialog.Builder(this);
         ad.setTitle(getString(title));
@@ -125,5 +141,4 @@ public class MapActivity extends AbstractMapActivity {
         AlertDialog alert = ad.create();
         alert.show();
     }
-
 }

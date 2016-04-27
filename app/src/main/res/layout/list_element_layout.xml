@@ -29,47 +29,39 @@
                 android:gravity="left"
                 android:layout_marginTop="16dp"
                 android:layout_marginLeft="16dp"
-                android:textStyle="bold"
-                android:textColor="@color/textColorSecondary"
-                android:textSize="16sp"/>
+                style="@style/MainTitleStyle" />
 
             <TextView
                 android:id="@+id/txtRegion_IL"
-                android:textColor="@color/textColorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:layout_marginLeft="16dp"
-                android:textSize="14sp"/>
+                style="@style/MainRegionCityStyle" />
 
             <TextView
                 android:id="@+id/txtCity_IL"
-                android:textColor="@color/textColorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:layout_marginLeft="16dp"
-                android:textSize="14sp"/>
+                style="@style/MainRegionCityStyle"
+               />
 
             <TextView
                 android:id="@+id/txtPhone_IL"
-                android:textColor="@color/textColorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:layout_marginTop="8dp"
-                android:layout_marginRight="16dp"
-                android:textSize="12sp"/>
+                style="@style/PhoneAddressStyle" />
 
             <TextView
                 android:id="@+id/txtAddress_IL"
-                android:textColor="@color/textColorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
-                android:textSize="12sp"/>
+                android:layout_marginBottom="10dp"
+                style="@style/PhoneAddressStyle"/>
+
+
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabsLayout_IL"

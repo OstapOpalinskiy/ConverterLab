@@ -1,5 +1,6 @@
 package com.opalinskiy.ostap.converterlab;
 
+import android.app.ActionBar;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -91,7 +92,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
             @Override
             public void onProgress(long percentage) {
                 String message = "Progress:" + percentage + "%";
-                // updateNotification(message);
+                updateNotification(message);
                 snackbar.setText(message);
                 snackbar.show();
             }
@@ -101,9 +102,10 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
-                //  updateNotification("Loading successful");
+                updateNotification("Loading successful");
                 showList(organisations);
                 snackbar.dismiss();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -115,8 +117,10 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                if(organisations.size() == 0){
                    showAlertDialog(R.string.no_data, R.string.no_data_msg);
                }
-                // updateNotification("Cant load data from internet");
+                updateNotification("Loaded from database");
+                snackbar.dismiss();
                 showList(organisations);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -138,8 +142,8 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     }
 
     private void refreshData() {
-        loadDataFromServer();
-        swipeRefreshLayout.setRefreshing(false);
+       loadDataFromServer();
+      //  swipeRefreshLayout.setRefreshing(false);
     }
 
     private void showList(List<Organisation> list) {

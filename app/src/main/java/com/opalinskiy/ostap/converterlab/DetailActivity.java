@@ -1,5 +1,6 @@
 package com.opalinskiy.ostap.converterlab;
 
+import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,8 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -68,6 +71,12 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         init();
+
+        ActionBar ab =  getSupportActionBar();
+        ab.setTitle(organisation.getTitle());
+        ab.setSubtitle(organisation.getCity());
+        ab.setDisplayHomeAsUpEnabled(true);
+
         setText();
         fillExchangeRatesList(organisation);
     }
@@ -89,7 +98,6 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_DA);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 //        layout.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -103,7 +111,9 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
 
     private void setText() {
         tvTitle.setText(organisation.getTitle());
-        tvLink.setText(organisation.getLink());
+        SpannableString content = new SpannableString(organisation.getLink());
+        content.setSpan(new UnderlineSpan(), 0, organisation.getLink().length(), 0);
+        tvLink.setText(content);
         tvCity.setText(organisation.getCity());
         tvAddress.setText(organisation.getAddress());
         tvRegion.setText(organisation.getRegion());
@@ -166,23 +176,30 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        layout.removeAllViews();
-        ShareImageTitle title = new ShareImageTitle(this, organisation);
-        layout.addView(title);
-        List<Currency> list = organisation.getCurrencies().getCurrencyList();
+        switch(item.getItemId()){
+            case R.id.action_share:
+                layout.removeAllViews();
+                ShareImageTitle title = new ShareImageTitle(this, organisation);
+                layout.addView(title);
+                List<Currency> list = organisation.getCurrencies().getCurrencyList();
 
-        for (int i = 0; i < list.size(); i++) {
-            ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
-            layout.addView(currencyItem);
-        }
-        Bitmap bitmap = getBitmapFromView(layout);
-        String filePath = saveImage(bitmap);
-        dialog = ShareFragment.newInstance(bitmap, filePath);
-        dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
+                for (int i = 0; i < list.size(); i++) {
+                    ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
+                    layout.addView(currencyItem);
+                }
+                Bitmap bitmap = getBitmapFromView(layout);
+                String filePath = saveImage(bitmap);
+                dialog = ShareFragment.newInstance(bitmap, filePath);
+                dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
 
-        //icon = getBitmapFromView(layout);
-        Log.d("TAG", "on menu item seected");
+                //icon = getBitmapFromView(layout);
+                Log.d("TAG", "on menu item seected");
 //        dialog = ShareFragment.newInstance(icon);
+                break;
+            case android.R.id.home:
+                onBackPressed();
+        }
+
 
         return super.onOptionsItemSelected(item);
     }

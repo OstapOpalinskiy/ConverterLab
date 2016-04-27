@@ -16,7 +16,7 @@ public class Constants {
    public static final String DECREASE_KEY = "decrease";
    public static final String ORG_SERIALISE = "serialise org";
    public static final String VERY_OLD_DATE = "1971-04-24T12:01:37+03:00";
-   public static final int THIRTY_MINUTES = 10000;
+   public static final int THIRTY_MINUTES = 1800000;
    public static final String BITMAP_KEY = "title";
    public static final String MESSAGE_KEY = "message";
    public static final String DIALOG_FRAGMENT_TAG = "share dialog";

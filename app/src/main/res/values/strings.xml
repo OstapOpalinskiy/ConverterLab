@@ -14,4 +14,9 @@
     <string name="no_internet_msg">You need internet to use maps.</string>
     <string name="no_data">No data available</string>
     <string name="no_data_msg">No data in database, please connect to the internet.</string>
+    <string name="site">Официальный сайт компании:</string>
+    <string name="region">Область:</string>
+    <string name="city">Город:</string>
+    <string name="address">Адрес:</string>
+    <string name="phone">Телефон:</string>
 </resources>
