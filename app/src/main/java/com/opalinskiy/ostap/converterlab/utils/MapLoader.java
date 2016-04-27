@@ -104,6 +104,8 @@ public class MapLoader extends AsyncTask<String, Void, LatLng> {
 
         } catch (JSONException e) {
             e.printStackTrace();
+        }catch (NullPointerException e) {
+            e.printStackTrace();
         }
         LatLng latLng = new LatLng(lat, lng);
         return latLng;

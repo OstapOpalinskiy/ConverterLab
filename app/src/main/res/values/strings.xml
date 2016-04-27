@@ -7,4 +7,11 @@
     <string name="ask_bid">Покупка/\nПродажа</string>
     <string name="share">Share</string>
     <string name="share_button">SHARE</string>
+    <string name="ok">Ok</string>
+    <string name="no_map">Google maps are not available.</string>
+    <string name="no_map_msg">Please install google services</string>
+    <string name="no_interent_title">No internet connection</string>
+    <string name="no_internet_msg">You need internet to use maps.</string>
+    <string name="no_data">No data available</string>
+    <string name="no_data_msg">No data in database, please connect to the internet.</string>
 </resources>

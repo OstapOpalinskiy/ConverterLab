@@ -1,9 +1,11 @@
 package com.opalinskiy.ostap.converterlab;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -89,7 +91,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
             @Override
             public void onProgress(long percentage) {
                 String message = "Progress:" + percentage + "%";
-               // updateNotification(message);
+                // updateNotification(message);
                 snackbar.setText(message);
                 snackbar.show();
             }
@@ -99,7 +101,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
-              //  updateNotification("Loading successful");
+                //  updateNotification("Loading successful");
                 showList(organisations);
                 snackbar.dismiss();
             }
@@ -110,8 +112,10 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 organisations = dbManager.readListOfOrganisationsFromDB();
                 Log.d(Constants.LOG_TAG, "list size = " + organisations.size());
                 dbManager.setRatesForList(organisations);
-                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
-               // updateNotification("Cant load data from internet");
+               if(organisations.size() == 0){
+                   showAlertDialog(R.string.no_data, R.string.no_data_msg);
+               }
+                // updateNotification("Cant load data from internet");
                 showList(organisations);
             }
         });
@@ -182,6 +186,21 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     protected void onDestroy() {
         super.onDestroy();
         dbManager.close();
+    }
+
+    private void showAlertDialog(int title, int message) {
+        AlertDialog.Builder ad = new AlertDialog.Builder(this);
+        ad.setTitle(getString(title));
+        ad.setMessage(getString(message));
+        ad.setCancelable(false);
+        ad.setNegativeButton(getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = ad.create();
+        alert.show();
     }
 }
 
