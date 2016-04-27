@@ -3,8 +3,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minWidth="300dp"
-    android:minHeight="300dp"
     android:weightSum="5">
 
     <ScrollView
@@ -14,7 +12,7 @@
 
         <ImageView
             android:id="@+id/iv_bitmap_SF"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </ScrollView>
 
@@ -24,6 +22,6 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:text="@string/share_button"
-        android:textSize="30sp"
+        android:textSize="22sp"
         android:textColor="@color/colorAccent"/>
 </LinearLayout>

@@ -1,12 +1,14 @@
 package com.opalinskiy.ostap.converterlab;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,7 +39,8 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DbManager dbManager;
-
+    private NotificationCompat.Builder builder;
+    private NotificationManager notificationManager;
 
 
     @Override
@@ -47,9 +50,11 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_MA);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
+        prepareNotification();
         dbManager = new DbManager(this);
         dbManager.open();
-       // startAlarmReceiver();
+
+        // startAlarmReceiver();
 
         final Snackbar snackbar = Snackbar
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
@@ -60,6 +65,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
                 organisations = dataResponse.getOrganisations();
+                updateNotification("Loading successful");
                 startLoaderService();
 
                 // dbManager.smartWriteIntoDbList(organisations); dbManager.setRatesVariationForList(organisations);
@@ -74,12 +80,14 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 organisations = dbManager.readListOfOrganisationsFromDB();
                 dbManager.setRatesForList(organisations);
                 Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
+                updateNotification("Cant load data from internet");
                 showList(organisations);
             }
 
             @Override
             public void onProgress(long percentage) {
                 String message = "Progress:" + percentage + "%";
+                updateNotification(message);
                 snackbar.setText(message);
                 snackbar.show();
             }
@@ -121,7 +129,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         return false;
     }
 
-    private void startLoaderService(){
+    private void startLoaderService() {
         Intent intent = new Intent(this, LoaderService.class);
         startService(intent);
     }
@@ -172,10 +180,10 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         }
     }
 
-    private void startAlarmReceiver(){
+    private void startAlarmReceiver() {
         Intent alarm = new Intent(this, AlarmReceiver.class);
         boolean alarmRunning = (PendingIntent.getBroadcast(this, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
-        if(alarmRunning == false) {
+        if (alarmRunning == false) {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarm, 0);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
@@ -183,43 +191,19 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         }
     }
 
+    private void prepareNotification() {
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        builder = new NotificationCompat.Builder(this)
+                .setContentText("")
+                .setContentTitle("Loading...")
+                .setSmallIcon(R.drawable.ic_link)
+                .setAutoCancel(false);
+    }
 
-//    @Override
-//    public void onOpenLink(Organisation org) {
-//        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(org.getLink()));
-//        startActivity(browserIntent);
-//    }
-//
-//    @Override
-//    public void onShowMap(Organisation org) {
-//        Intent intent = new Intent(this, MapActivity.class);
-//        // String address = org.getCity() + ", " + org.getAddress();
-//        //Log.d("TAG", address);
-//        //intent.putExtra("address", address);
-//        intent.putExtra("city", org.getCity());
-//        intent.putExtra("address", org.getAddress());
-//        startActivity(intent);
-//    }
-//
-//    @Override
-//    public void onShowDetails(Organisation org) {
-//        Intent intent = new Intent(this, DetailActivity.class);
-//        intent.putExtra(Constants.ORG_SERIALISE, (Serializable) org);
-//        startActivity(intent);
-//    }
-//
-//    @Override
-//    public void onCallNumber(Organisation org) {
-//        try {
-//            Intent intent = new Intent();
-//            intent.setAction(Intent.ACTION_CALL);
-//            intent.setData(Uri.parse("tel:" + org.getPhone()));
-//            startActivity(intent);
-//        } catch (ActivityNotFoundException e) {
-//            // shows alert dialog, if there is no phone app on device
-//            // showAlertDialog(R.string.application_not_found, R.string.no_phone, R.string.buttonText_ok);
-//        }
-//    }
+    private void updateNotification(String text) {
+        builder.setContentText(text);
+        notificationManager.notify(0, builder.build());
+    }
 
     @Override
     public void onRefresh() {

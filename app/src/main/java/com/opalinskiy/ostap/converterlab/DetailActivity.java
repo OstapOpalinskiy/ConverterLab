@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -30,7 +31,10 @@ import com.opalinskiy.ostap.converterlab.customView.ShareImageTitle;
 import com.opalinskiy.ostap.converterlab.model.Currency;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Random;
 
 public class DetailActivity extends AbstractActionActivity {
 
@@ -153,6 +157,7 @@ public class DetailActivity extends AbstractActionActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        layout.removeAllViews();
         ShareImageTitle title = new ShareImageTitle(this, organisation);
         layout.addView(title);
         List<Currency> list = organisation.getCurrencies().getCurrencyList();
@@ -161,8 +166,9 @@ public class DetailActivity extends AbstractActionActivity {
             ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
             layout.addView(currencyItem);
         }
-
-        dialog = ShareFragment.newInstance(getBitmapFromView(layout));
+        Bitmap bitmap = getBitmapFromView(layout);
+        String filePath = saveImage(bitmap);
+        dialog = ShareFragment.newInstance(bitmap, filePath);
         dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
 
         //icon = getBitmapFromView(layout);
@@ -198,7 +204,10 @@ public class DetailActivity extends AbstractActionActivity {
 //        return returnedBitmap;
 //    }
 
-    public static Bitmap getBitmapFromView(View view) {
+    public Bitmap getBitmapFromView(View view) {
+
+        // layout.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        view.layout(0, 0, view.getMeasuredWidth(), layout.getMeasuredHeight());
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -207,4 +216,30 @@ public class DetailActivity extends AbstractActionActivity {
         view.draw(canvas);
         return bitmap;
     }
+
+    private String saveImage(Bitmap finalBitmap) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        String rootPath = root + "/saved_images";
+        File myDir = new File(rootPath);
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Image-" + organisation.getTitle() + n + ".jpg";
+        String fullPath = rootPath + fname;
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete();
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fullPath;
+    }
+
 }
