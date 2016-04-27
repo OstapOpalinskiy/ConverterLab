@@ -1,5 +1,6 @@
 package com.opalinskiy.ostap.converterlab;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.os.Environment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -24,19 +26,23 @@ import android.widget.TextView;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractActionActivity;
+import com.opalinskiy.ostap.converterlab.api.Api;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.customView.CurrencyListElementView;
 import com.opalinskiy.ostap.converterlab.customView.ShareImageBody;
 import com.opalinskiy.ostap.converterlab.customView.ShareImageTitle;
+import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
 import com.opalinskiy.ostap.converterlab.model.Currency;
+import com.opalinskiy.ostap.converterlab.model.DataResponse;
 import com.opalinskiy.ostap.converterlab.model.Organisation;
+import com.opalinskiy.ostap.converterlab.services.LoaderService;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Random;
 
-public class DetailActivity extends AbstractActionActivity {
+public class DetailActivity extends AbstractActionActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     private TextView tvTitle;
     private TextView tvLink;
@@ -54,13 +60,13 @@ public class DetailActivity extends AbstractActionActivity {
     private boolean isMenuOpened;
     private ShareFragment dialog;
     private LinearLayout layout;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
         init();
         setText();
         fillExchangeRatesList(organisation);
@@ -80,6 +86,9 @@ public class DetailActivity extends AbstractActionActivity {
         buttonLink = (FloatingActionButton) findViewById(R.id.item_link);
         buttonCall = (FloatingActionButton) findViewById(R.id.item_call);
         semiTransparentFrame = (FrameLayout) findViewById(R.id.fl_semi_transparent);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_DA);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
 
         layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -242,4 +251,37 @@ public class DetailActivity extends AbstractActionActivity {
         return fullPath;
     }
 
+    @Override
+    public void onRefresh() {
+
+    }
+
+    private void loadDataFromServer() {
+        startLoaderService();
+        Api.getDataResponse(new ConnectCallback() {
+
+            @Override
+            public void onProgress(long percentage) {
+            }
+
+            @Override
+            public void onSuccess(Object object) {
+                Log.d(Constants.LOG_TAG, "On success");
+                DataResponse dataResponse = (DataResponse) object;
+                organisation = dataResponse.getOrganisationById(organisation.getId());
+                setText();
+                fillExchangeRatesList(organisation);
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+    }
+
+    private void startLoaderService() {
+        Intent intent = new Intent(this, LoaderService.class);
+        startService(intent);
+    }
 }

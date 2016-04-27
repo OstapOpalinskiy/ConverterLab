@@ -94,6 +94,7 @@ public class Connect {
         URL url = new URL(Constants.DATA_SOURCE_KEY);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
         conn.setConnectTimeout(10000);
         conn.setRequestMethod("GET");
 
