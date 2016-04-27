@@ -12,6 +12,7 @@ import android.os.Bundle;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Display;
@@ -23,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractActionActivity;
@@ -88,6 +90,8 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         semiTransparentFrame = (FrameLayout) findViewById(R.id.fl_semi_transparent);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_DA);
         swipeRefreshLayout.setOnRefreshListener(this);
+        snackbar = Snackbar
+                .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
 
 
         layout = new LinearLayout(this);
@@ -253,7 +257,7 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
 
     @Override
     public void onRefresh() {
-
+        loadDataFromServer();
     }
 
     private void loadDataFromServer() {
@@ -262,26 +266,40 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
 
             @Override
             public void onProgress(long percentage) {
+                String message = "Progress:" + percentage + "%";
+                // updateNotification(message);
+                snackbar.setText(message);
+                snackbar.show();
             }
 
             @Override
             public void onSuccess(Object object) {
                 Log.d(Constants.LOG_TAG, "On success");
                 DataResponse dataResponse = (DataResponse) object;
-                organisation = dataResponse.getOrganisationById(organisation.getId());
+                List listOrganisations = dataResponse.getOrganisations();
+                organisation = getOrganisationById(listOrganisations, organisation.getId());
                 setText();
                 fillExchangeRatesList(organisation);
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure() {
-
+                Toast.makeText(DetailActivity.this, "Cannot load data", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    private void startLoaderService() {
-        Intent intent = new Intent(this, LoaderService.class);
-        startService(intent);
+    public Organisation getOrganisationById(List<Organisation> list, String id) {
+        Organisation result = null;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId().equals(id)) {
+                result = list.get(i);
+                break;
+            }
+        }
+        return result;
     }
+
 }

@@ -94,16 +94,6 @@ public class DataResponse implements ModelResponse {
         return list;
     }
 
-    public Organisation getOrganisationById(String id) {
-        Organisation result = null;
-        for (int i = 0; i < organisations.size(); i++) {
-            if (organisations.get(i).getId().equals(id)) {
-                result = organisations.get(i);
-                break;
-            }
-        }
-        return result;
-    }
 
     public ArrayList<Organisation> getOrganisations() {
         return organisations;

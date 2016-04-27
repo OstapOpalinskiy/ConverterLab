@@ -41,9 +41,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private DbManager dbManager;
-    private NotificationCompat.Builder builder;
-    private NotificationManager notificationManager;
-    private Snackbar snackbar;
+
 
 
     @Override
@@ -104,6 +102,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 //  updateNotification("Loading successful");
                 showList(organisations);
                 snackbar.dismiss();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -112,11 +111,12 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 organisations = dbManager.readListOfOrganisationsFromDB();
                 Log.d(Constants.LOG_TAG, "list size = " + organisations.size());
                 dbManager.setRatesForList(organisations);
-               if(organisations.size() == 0){
-                   showAlertDialog(R.string.no_data, R.string.no_data_msg);
-               }
+                if(organisations.size() == 0){
+                    showAlertDialog(R.string.no_data, R.string.no_data_msg);
+                }
                 // updateNotification("Cant load data from internet");
                 showList(organisations);
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -132,14 +132,14 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
     }
 
-    private void startLoaderService() {
-        Intent intent = new Intent(this, LoaderService.class);
-        startService(intent);
-    }
+//    private void startLoaderService() {
+//        Intent intent = new Intent(this, LoaderService.class);
+//        startService(intent);
+//    }
 
     private void refreshData() {
+        startLoaderService();
         loadDataFromServer();
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void showList(List<Organisation> list) {
@@ -163,19 +163,19 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         }
     }
 
-    private void prepareNotification() {
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        builder = new NotificationCompat.Builder(this)
-                .setContentText("")
-                .setContentTitle("Loading...")
-                .setSmallIcon(R.drawable.ic_link)
-                .setOngoing(true);
-    }
-
-    private void updateNotification(String text) {
-        builder.setContentText(text);
-        notificationManager.notify(0, builder.build());
-    }
+//    private void prepareNotification() {
+//        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        builder = new NotificationCompat.Builder(this)
+//                .setContentText("")
+//                .setContentTitle("Loading...")
+//                .setSmallIcon(R.drawable.ic_link)
+//                .setOngoing(true);
+//    }
+//
+//    private void updateNotification(String text) {
+//        builder.setContentText(text);
+//        notificationManager.notify(0, builder.build());
+//    }
 
     @Override
     public void onRefresh() {

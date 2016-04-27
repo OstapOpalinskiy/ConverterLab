@@ -29,9 +29,11 @@ public class ShareFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Log.d("TAG", "on create dialog" );
+
         Dialog dialog = new Dialog(getActivity());
         Bitmap bitmap = (Bitmap) getArguments().get(Constants.BITMAP_KEY);
         final String filePath = getArguments().getString(Constants.FILE_PATH_KEY);
+
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
