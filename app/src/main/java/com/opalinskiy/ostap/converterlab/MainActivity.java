@@ -41,57 +41,16 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     private DbManager dbManager;
     private NotificationCompat.Builder builder;
     private NotificationManager notificationManager;
+    private Snackbar snackbar;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_MA);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-        prepareNotification();
-        dbManager = new DbManager(this);
-        dbManager.open();
-
-        // startAlarmReceiver();
-
-        final Snackbar snackbar = Snackbar
-                .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-
-        Api.getDataResponse(new ConnectCallback() {
-            @Override
-            public void onSuccess(Object object) {
-                Log.d(Constants.LOG_TAG, "On success");
-                DataResponse dataResponse = (DataResponse) object;
-                organisations = dataResponse.getOrganisations();
-                updateNotification("Loading successful");
-                startLoaderService();
-
-                // dbManager.smartWriteIntoDbList(organisations); dbManager.setRatesVariationForList(organisations);
-//                dbManager.writeAllDataToDb(dataResponse);
-                showList(organisations);
-                snackbar.dismiss();
-            }
-
-            @Override
-            public void onFailure() {
-                Log.d(Constants.LOG_TAG, "onFailure=");
-                organisations = dbManager.readListOfOrganisationsFromDB();
-                dbManager.setRatesForList(organisations);
-                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
-                updateNotification("Cant load data from internet");
-                showList(organisations);
-            }
-
-            @Override
-            public void onProgress(long percentage) {
-                String message = "Progress:" + percentage + "%";
-                updateNotification(message);
-                snackbar.setText(message);
-                snackbar.show();
-            }
-        });
+        init();
+        startAlarmReceiver();
+        loadDataFromServer();
     }
 
     @Override
@@ -105,7 +64,6 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        //  Log.d("TAG", "text changed..." + query);
         return false;
     }
 
@@ -114,7 +72,6 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         Log.d(Constants.LOG_TAG, "onTextChange");
         String criteria = newText.toLowerCase();
         List<Organisation> filteredList = new ArrayList();
-        //  if (!TextUtils.isEmpty(newText)) {
         for (int i = 0; i < organisations.size(); i++) {
             if (organisations.get(i).getCity().toLowerCase().contains(criteria)
                     || organisations.get(i).getRegion().toLowerCase().contains(criteria)
@@ -123,10 +80,52 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
             }
         }
         showList(filteredList);
-//        } else {
-//            showList(organisations);
-//        }
         return false;
+    }
+
+    private void loadDataFromServer() {
+        Api.getDataResponse(new ConnectCallback() {
+
+            @Override
+            public void onProgress(long percentage) {
+                String message = "Progress:" + percentage + "%";
+               // updateNotification(message);
+                snackbar.setText(message);
+                snackbar.show();
+            }
+
+            @Override
+            public void onSuccess(Object object) {
+                Log.d(Constants.LOG_TAG, "On success");
+                DataResponse dataResponse = (DataResponse) object;
+                organisations = dataResponse.getOrganisations();
+              //  updateNotification("Loading successful");
+                showList(organisations);
+                snackbar.dismiss();
+            }
+
+            @Override
+            public void onFailure() {
+                Log.d(Constants.LOG_TAG, "onFailure in activity=");
+                organisations = dbManager.readListOfOrganisationsFromDB();
+                Log.d(Constants.LOG_TAG, "list size = " + organisations.size());
+                dbManager.setRatesForList(organisations);
+                Log.d(Constants.LOG_TAG, "ask from first of DB: " + organisations.get(0));
+               // updateNotification("Cant load data from internet");
+                showList(organisations);
+            }
+        });
+    }
+
+    private void init() {
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_MA);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
+        prepareNotification();
+        dbManager = new DbManager(this);
+        dbManager.open();
+        snackbar = Snackbar
+                .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
     }
 
     private void startLoaderService() {
@@ -135,34 +134,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
     }
 
     private void refreshData() {
-        final Snackbar snackbar = Snackbar
-                .make(swipeRefreshLayout, "", Snackbar.LENGTH_INDEFINITE);
-        Api.getDataResponse(new ConnectCallback() {
-            @Override
-            public void onSuccess(Object object) {
-                Log.d(Constants.LOG_TAG, "on success");
-                DataResponse dataResponse = (DataResponse) object;
-                organisations = dataResponse.getOrganisations();
-                Log.d(Constants.LOG_TAG, "on success");
-                showExample();
-                showList(organisations);
-                snackbar.dismiss();
-            }
-
-            @Override
-            public void onFailure() {
-                Log.d(Constants.LOG_TAG, "onFailure=");
-            }
-
-            @Override
-            public void onProgress(long percentage) {
-                String message = "Progress:" + percentage + "%";
-                Log.d("TAG", "Progress in activity" + percentage + "%");
-                snackbar.setText(message);
-                snackbar.show();
-
-            }
-        });
+        loadDataFromServer();
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -173,14 +145,8 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    private void showExample() {
-        if (organisations != null) {
-            Log.d(Constants.LOG_TAG, "" + organisations.get(0));
-            Log.d(Constants.LOG_TAG, "==================================================================================");
-        }
-    }
-
     private void startAlarmReceiver() {
+        Log.d(Constants.LOG_TAG, "starting alarm!!!");
         Intent alarm = new Intent(this, AlarmReceiver.class);
         boolean alarmRunning = (PendingIntent.getBroadcast(this, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
         if (alarmRunning == false) {
@@ -188,6 +154,8 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime(), Constants.THIRTY_MINUTES, pendingIntent);
+        }else {
+            startLoaderService();
         }
     }
 
@@ -197,7 +165,7 @@ public class MainActivity extends AbstractActionActivity implements SwipeRefresh
                 .setContentText("")
                 .setContentTitle("Loading...")
                 .setSmallIcon(R.drawable.ic_link)
-                .setAutoCancel(false);
+                .setOngoing(true);
     }
 
     private void updateNotification(String text) {

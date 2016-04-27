@@ -43,6 +43,7 @@ public class DbManager {
     }
 
     public void writeAllDataToDb(DataResponse response) {
+       // Log.d(Constants.LOG_TAG, "write all data to db");
         // writeListOfOrganisationsToDb(response.getOrganisations());
         smartWriteIntoDbList(response.getOrganisations());
         writeMapToDb(response.getCurrencies(), dbConstants.TABLE_CURRENCIES);
@@ -76,7 +77,7 @@ public class DbManager {
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+            Log.e(Constants.LOG_TAG, "exception caught in readListOfOrganisationsFromDB()", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -112,7 +113,7 @@ public class DbManager {
                 organisation.getCurrencies().setCurrencyList(list);
             }
         } catch (Exception e) {
-            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+            Log.e(Constants.LOG_TAG, "exception caught in fillOrganisationWithRates()", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -139,7 +140,7 @@ public class DbManager {
     // write whole info from organisation to db
    private void writeDataIntoOrgsTable(Organisation org) {
         writeOrganisationToDb(org);
-        writeCourseToDb(org);
+        writeExchangeRatesToDb(org);
     }
 
     //updateWholeOrganisation
@@ -150,26 +151,26 @@ public class DbManager {
 
     //writeOrgWithCondition
     private void smartWriteIntoDB(Organisation org) {
+        Log.d(Constants.LOG_TAG, "smart write");
         Cursor cursor = null;
         try {
             cursor = database.rawQuery("SELECT * FROM " + dbConstants.TABLE_ORGANIZATIONS, null);
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     if (org.getId().equals(cursor.getString(1))) {
-                        Log.d(Constants.LOG_TAG, "sameId: " + cursor.getString(1));
-                        Log.d(Constants.LOG_TAG, "sameId: " + org.getId());
                         if (isFirstOlder(cursor.getString(10), org.getDate())) {
                             updateDataInOrgsAndRates(org);
-                            Log.d(Constants.LOG_TAG, "updated: ");
+                      //      Log.d(Constants.LOG_TAG, "updated: ");
                         }
+                       // Log.d(Constants.LOG_TAG, "ignoring data is actual ");
                         return;
                     }
                 } while (cursor.moveToNext());
             }
             writeDataIntoOrgsTable(org);
-            Log.d(Constants.LOG_TAG, "written ");
+            //Log.d(Constants.LOG_TAG, "written ");
         } catch (Exception e) {
-            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+            Log.e(Constants.LOG_TAG, "exception caught in smartWriteIntoDB()", e);
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -199,7 +200,7 @@ public class DbManager {
 
     private ContentValues getCVFromOrganisation(Organisation org) {
         ContentValues cv = new ContentValues();
-       // cv.put(dbConstants.COLUMN_ID, org.getId());
+        cv.put(dbConstants.COLUMN_ID, org.getId());
         cv.put(dbConstants.COLUMN_OLD_ID, org.getOldId());
         cv.put(dbConstants.COLUMN_ORG_TYPE, org.getOrgType());
         cv.put(dbConstants.COLUMN_TITLE, org.getTitle());
@@ -220,7 +221,6 @@ public class DbManager {
     private void writeMapToDb(Map<String, String> map, String tableName) {
         ContentValues cv = new ContentValues();
         database.delete(tableName, null, null);
-
         for (Map.Entry<String, String> entry : map.entrySet()) {
             cv.put(dbConstants.PRIMARY_KEY_ID, entry.getKey());
             cv.put(dbConstants.COLUMN_VALUE, entry.getValue());
@@ -254,14 +254,15 @@ public class DbManager {
 //    public void writeAllCoursesToDb(List<Organisation> list) {
 //        database.delete(dbConstants.TABLE_EXCHANGE_RATES, null, null);
 //        for (int i = 0; i < list.size(); i++) {
-//            writeCourseToDb(list.get(i));
+//            writeExchangeRatesToDb(list.get(i));
 //        }
 //    }
 
-    private void writeCourseToDb(Organisation organisation) {
+    private void writeExchangeRatesToDb(Organisation organisation) {
         List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
-        ContentValues cv = new ContentValues();
+        Log.d(Constants.LOG_TAG, "currency list to write " + listCurrencies);
         for (int i = 0; i < listCurrencies.size(); i++) {
+            ContentValues cv = new ContentValues();
             cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
             cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
             cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
@@ -271,14 +272,13 @@ public class DbManager {
             cv.put(dbConstants.COLUMN_CHANGE_BID, listCurrencies.get(i).getChangeBid());
             database.insert(dbConstants.TABLE_EXCHANGE_RATES, null, cv);
         }
-
     }
 
    private void updateExchangeRates(Organisation organisation) {
         List<Currency> listCurrencies = organisation.getCurrencies().getCurrencyList();
-        ContentValues cv = new ContentValues();
         for (int i = 0; i < listCurrencies.size(); i++) {
-         //   cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
+            ContentValues cv = new ContentValues();
+            cv.put(dbConstants.COLUMN_ID_ORGANIZATIONS, organisation.getId());
             cv.put(dbConstants.COLUMN_ID_CURRENCY, listCurrencies.get(i).getIdCurrency());
             cv.put(dbConstants.COLUMN_NAME_CURRENCY, listCurrencies.get(i).getNameCurrency());
             cv.put(dbConstants.COLUMN_ASK_CURRENCY, listCurrencies.get(i).getAsk());
@@ -295,7 +295,7 @@ public class DbManager {
     }
 
 
-    private void recreateDb() {
+    public void recreateDb() {
         dbHelper.onUpgrade(database, 1, 1);
     }
 
@@ -358,7 +358,7 @@ public class DbManager {
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e(Constants.LOG_TAG, "exception caught in onLogin()", e);
+            Log.e(Constants.LOG_TAG, "exception caught in findCurrencyInDb()", e);
         } finally {
             if (cursor != null) {
                 cursor.close();

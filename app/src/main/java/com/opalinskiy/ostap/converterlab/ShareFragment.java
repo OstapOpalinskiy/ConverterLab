@@ -25,7 +25,6 @@ import java.io.File;
 
 public class ShareFragment extends DialogFragment {
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -43,6 +42,7 @@ public class ShareFragment extends DialogFragment {
         View layout = layoutInflater.inflate(R.layout.share_fragment, null);
         ImageView imageView = (ImageView) layout.findViewById(R.id.iv_bitmap_SF);
         Button shareButton = (Button) layout.findViewById(R.id.btn_share_SF);
+
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

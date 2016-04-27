@@ -17,7 +17,7 @@ public class Api {
     public static void getDataResponseSynchronous(Context context, ConnectCallback callback) {
         try {
             Connect.getInstance().getRequestSynchronous(context, new DataResponse(), callback);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             callback.onFailure();
         }

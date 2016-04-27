@@ -31,12 +31,4 @@ public class AlarmReceiver extends BroadcastReceiver {
         Log.d(Constants.LOG_TAG, "ALARM WORKS!!!");
         context.startService(serviceIntent);
     }
-
-
-//        AlarmManager alarmManager=(AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000,
-//                pendingIntent);
-
 }
