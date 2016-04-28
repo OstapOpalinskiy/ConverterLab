@@ -1,19 +1,14 @@
 package com.opalinskiy.ostap.converterlab;
 
-import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
-
-import com.getbase.floatingactionbutton.FloatingActionButton;
-
 import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -23,15 +18,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.opalinskiy.ostap.converterlab.abstractActivities.AbstractActionActivity;
 import com.opalinskiy.ostap.converterlab.api.Api;
 import com.opalinskiy.ostap.converterlab.constants.Constants;
 import com.opalinskiy.ostap.converterlab.customView.CurrencyListElementView;
+import com.opalinskiy.ostap.converterlab.customView.DummyView;
 import com.opalinskiy.ostap.converterlab.customView.ShareImageBody;
 import com.opalinskiy.ostap.converterlab.customView.ShareImageTitle;
 import com.opalinskiy.ostap.converterlab.interfaces.ConnectCallback;
@@ -45,7 +41,7 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Random;
 
-public class DetailActivity extends AbstractActionActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class DetailActivity extends AbstractActionActivity {
 
     private TextView tvTitle;
     private TextView tvLink;
@@ -62,8 +58,6 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
     private FrameLayout semiTransparentFrame;
     private boolean isMenuOpened;
     private ShareFragment dialog;
-    private LinearLayout layout;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -71,14 +65,16 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         init();
+        setToolbar();
+        setText();
+        fillExchangeRatesList(organisation);
+    }
 
+    private void setToolbar() {
         ActionBar ab =  getSupportActionBar();
         ab.setTitle(organisation.getTitle());
         ab.setSubtitle(organisation.getCity());
         ab.setDisplayHomeAsUpEnabled(true);
-
-        setText();
-        fillExchangeRatesList(organisation);
     }
 
     private void init() {
@@ -95,17 +91,6 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         buttonLink = (FloatingActionButton) findViewById(R.id.item_link);
         buttonCall = (FloatingActionButton) findViewById(R.id.item_call);
         semiTransparentFrame = (FrameLayout) findViewById(R.id.fl_semi_transparent);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_DA);
-        swipeRefreshLayout.setOnRefreshListener(this);
-
-        layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-//        layout.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        layout.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
-//        ShareImageTitle title = new ShareImageTitle(this, organisation);
-//        layout.addView(title);
-
-
         setMenuListeners();
     }
 
@@ -178,23 +163,7 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_share:
-                layout.removeAllViews();
-                ShareImageTitle title = new ShareImageTitle(this, organisation);
-                layout.addView(title);
-                List<Currency> list = organisation.getCurrencies().getCurrencyList();
-
-                for (int i = 0; i < list.size(); i++) {
-                    ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
-                    layout.addView(currencyItem);
-                }
-                Bitmap bitmap = getBitmapFromView(layout);
-                String filePath = saveImage(bitmap);
-                dialog = ShareFragment.newInstance(bitmap, filePath);
-                dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
-
-                //icon = getBitmapFromView(layout);
-                Log.d("TAG", "on menu item seected");
-//        dialog = ShareFragment.newInstance(icon);
+                showImageInDialog();
                 break;
             case android.R.id.home:
                 onBackPressed();
@@ -204,36 +173,30 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         return super.onOptionsItemSelected(item);
     }
 
-//    public  Bitmap getBitmapFromView(View view) {
-//        Display display = getWindowManager().getDefaultDisplay();
-//        int width = display.getWidth();
-//        int height = display.getHeight();
-//        //Define a bitmap with the same size as the view
-//
-//        view.layout(0, 0, width, layout.getMeasuredHeight());
-//        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
-//                Bitmap.Config.ARGB_8888);
-//   //     Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
-//        //Bind a canvas to it
-//        Canvas canvas = new Canvas(returnedBitmap);
-//        //Get the view's background
-//        Drawable bgDrawable =view.getBackground();
-//        if (bgDrawable!=null)
-//            //has background drawable, then draw it on the canvas
-//            bgDrawable.draw(canvas);
-//        else
-//            //does not have background drawable, then draw white background on the canvas
-//            canvas.drawColor(Color.WHITE);
-//        // draw the view on the canvas
-//        view.draw(canvas);
-//        //return the bitmap
-//        return returnedBitmap;
-//    }
+    private void showImageInDialog() {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.removeAllViews();
+        ShareImageTitle title = new ShareImageTitle(this, organisation);
+        //empty view sets width of layout
+        layout.addView(new DummyView(this));
+        layout.addView(title);
+        List<Currency> list = organisation.getCurrencies().getCurrencyList();
+
+        for (int i = 0; i < list.size(); i++) {
+            ShareImageBody currencyItem = new ShareImageBody(this, list.get(i));
+            layout.addView(currencyItem);
+        }
+        Bitmap bitmap = getBitmapFromView(layout);
+        String filePath = saveImage(bitmap);
+        dialog = ShareFragment.newInstance(bitmap, filePath);
+        dialog.show(DetailActivity.this.getFragmentManager(), Constants.DIALOG_FRAGMENT_TAG);
+    }
+
 
     public Bitmap getBitmapFromView(View view) {
 
-        // layout.measure(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        view.layout(0, 0, view.getMeasuredWidth(), layout.getMeasuredHeight());
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -242,6 +205,7 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
         view.draw(canvas);
         return bitmap;
     }
+
 
     private String saveImage(Bitmap finalBitmap) {
 
@@ -266,39 +230,5 @@ public class DetailActivity extends AbstractActionActivity implements SwipeRefre
             e.printStackTrace();
         }
         return fullPath;
-    }
-
-    @Override
-    public void onRefresh() {
-
-    }
-
-    private void loadDataFromServer() {
-        startLoaderService();
-        Api.getDataResponse(new ConnectCallback() {
-
-            @Override
-            public void onProgress(long percentage) {
-            }
-
-            @Override
-            public void onSuccess(Object object) {
-                Log.d(Constants.LOG_TAG, "On success");
-                DataResponse dataResponse = (DataResponse) object;
-                organisation = dataResponse.getOrganisationById(organisation.getId());
-                setText();
-                fillExchangeRatesList(organisation);
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-        });
-    }
-
-    private void startLoaderService() {
-        Intent intent = new Intent(this, LoaderService.class);
-        startService(intent);
     }
 }

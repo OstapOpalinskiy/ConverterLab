@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="5">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <ScrollView
+        android:id="@+id/sv_SF"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_bitmap_SF"
@@ -19,9 +17,11 @@
     <Button
         android:id="@+id/btn_share_SF"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="60dp"
         android:layout_weight="1"
         android:text="@string/share_button"
-        android:textSize="22sp"
+        android:layout_below="@+id/sv_SF"
+        android:textSize="20sp"
+
         android:textColor="@color/colorAccent"/>
-</LinearLayout>
+</RelativeLayout>

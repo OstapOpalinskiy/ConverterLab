@@ -43,14 +43,11 @@ public class DbManager {
     }
 
     public void writeAllDataToDb(DataResponse response) {
-       // Log.d(Constants.LOG_TAG, "write all data to db");
-        // writeListOfOrganisationsToDb(response.getOrganisations());
         smartWriteIntoDbList(response.getOrganisations());
         writeMapToDb(response.getCurrencies(), dbConstants.TABLE_CURRENCIES);
         writeMapToDb(response.getCities(), dbConstants.TABLE_CITIES);
         writeMapToDb(response.getRegions(), dbConstants.TABLE_REGIONS);
         writeMapToDb(response.getOrgTypes(), dbConstants.TABLE_ORG_TYPES);
-        //  writeAllCoursesToDb(response.getOrganisations());
     }
 
     public List<Organisation> readListOfOrganisationsFromDB() {
